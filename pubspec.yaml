@@ -63,6 +63,8 @@ flutter:
   # assets:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -87,5 +89,11 @@ flutter:
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
   #
+  fonts:
+    - family: Jost
+      fonts:
+        - asset: assets/jost_fonts/Jost-Regular.ttf
+        - asset: assets/jost_fonts/Jost-Italic.ttf
+          style: italic
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
