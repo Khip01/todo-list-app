@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../models/todo.dart';
+import '../../../../values/data.dart';
 
 part 'todo_event.dart';
 part 'todo_state.dart';
@@ -13,6 +14,8 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
     on<UpdateTodoEvent>(_updateTodo);
 
     on<DeleteTodoEvent>(_deleteTodo);
+
+    on<RefreshTodoEvent>(_refreshTodo);
   }
 
   void _addTodo(AddTodoEvent event, Emitter<TodoState> emit) {
@@ -32,5 +35,9 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   void _deleteTodo(DeleteTodoEvent event, Emitter<TodoState> emit){
     state.todoList.remove(event.todo);
     emit(TodoLoaded(todoList: state.todoList));
+  }
+
+  void _refreshTodo(RefreshTodoEvent event, Emitter<TodoState> emit){
+    emit(TodoLoaded(todoList: event.todoList));
   }
 }

@@ -20,3 +20,9 @@ class DeleteTodoEvent extends TodoEvent {
 
   DeleteTodoEvent({required this.todo});
 }
+
+class RefreshTodoEvent extends TodoEvent {
+  final List<Todo> todoList;
+
+  RefreshTodoEvent({required this.todoList});
+}

@@ -8,7 +8,7 @@ sealed class TodoState {
 }
 
 final class TodoInitial extends TodoState {
-  TodoInitial() : super([]);
+  TodoInitial() : super(Data.dummyTodoList);
 }
 
 final class TodoLoaded extends TodoState {
