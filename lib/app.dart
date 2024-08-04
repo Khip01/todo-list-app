@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_list_app/screens/home/blocs/todo/todo_bloc.dart';
-import 'package:todo_list_app/screens/home/views/home_page.dart';
+import 'package:todo_list_app/screens/home/views/home_screen.dart';
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
@@ -13,7 +13,7 @@ class MainApp extends StatelessWidget {
         BlocProvider(create: (context) => TodoBloc()),
       ],
       child: MaterialApp(
-        home: HomePage(),
+        home: HomeScreen(),
         debugShowCheckedModeBanner: false,
       ),
     );
