@@ -1,15 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:todo_list_app/screens/home/blocs/todo/todo_bloc.dart';
+import 'package:todo_list_app/utils/helper/generate_todo_index.dart';
 import 'package:todo_list_app/utils/style_util.dart';
+import 'package:todo_list_app/widgets/custom_drag_icon.dart';
+import 'package:todo_list_app/widgets/custom_textfield.dart';
 
 import '../../../models/todo.dart';
 import '../../../values/images.dart';
-import '../blocs/todo/todo_bloc.dart';
+import '../blocs/todo_list/todo_list_bloc.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
 
   final StyleUtil _styleUtil = StyleUtil();
+
+  final TextEditingController _todoTitleTextController =
+      TextEditingController();
+  final TextEditingController _todoDescTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +65,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 child: Align(
                   alignment: Alignment.centerRight,
-                  child: _customFloatingButton(),
+                  child: _customFloatingButton(context),
                 ),
               ),
             ),
@@ -66,37 +75,231 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _customFloatingButton() {
-    return BlocBuilder<TodoBloc, TodoState>(
-      builder: (context, state) {
-        return Container(
-          height: 48,
-          width: 48,
-          margin: const EdgeInsets.only(right: 14, top: 14),
-          child: ElevatedButton(
-            onPressed: () {
-              context.read<TodoBloc>().add(
-                  RefreshTodoEvent(todoList: state.todoList.reversed.toList()));
-            },
-            style: ElevatedButton.styleFrom(
-              elevation: 1,
-              padding: EdgeInsets.zero,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(50),
-              ),
-              overlayColor: _styleUtil.c_245,
-              backgroundColor: _styleUtil.c_97,
-              shadowColor: _styleUtil.c_97,
-              alignment: Alignment.center,
-            ),
-            child: Icon(
-              Icons.add,
-              color: _styleUtil.c_255,
-              size: 18,
+  Widget _customFloatingButton(BuildContext context) {
+    return Container(
+      height: 48,
+      width: 48,
+      margin: const EdgeInsets.only(right: 14, top: 14),
+      child: ElevatedButton(
+        onPressed: () {
+          _showModalBottomSheet(
+            context: context,
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          elevation: 1,
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+          overlayColor: _styleUtil.c_245,
+          backgroundColor: _styleUtil.c_97,
+          shadowColor: _styleUtil.c_97,
+          alignment: Alignment.center,
+        ),
+        child: Icon(
+          Icons.add,
+          color: _styleUtil.c_255,
+          size: 18,
+        ),
+      ),
+    );
+  }
+
+  void _showModalBottomSheet({
+    required BuildContext context,
+  }) {
+    final StyleUtil styleUtil = StyleUtil();
+
+    showModalBottomSheet(
+      clipBehavior: Clip.antiAlias,
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: styleUtil.c_16,
+      builder: (context) {
+        final keyboardBottomPadding = MediaQuery.of(context).viewInsets.bottom;
+
+        return BlocBuilder<TodoListBloc, TodoListState>(
+          builder: (todoListBlocContext, todoListBlocState) {
+            return BlocBuilder<TodoBloc, TodoState>(
+              builder: (todoBlocContext, todoBlocState) {
+                // bool isError = false;
+
+                Todo previewNewTodo = Todo(
+                  id: generateTodoIndex(todoListBlocContext).toString(),
+                  title: todoBlocState.todo.title,
+                  desc: todoBlocState.todo.desc,
+                  check: todoBlocState.todo.check,
+                );
+
+                return Padding(
+                  padding: EdgeInsets.only(
+                      bottom: keyboardBottomPadding, left: 14, right: 14),
+                  child: SingleChildScrollView(
+                    // controller: scrollController,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: CustomDragIcon(),
+                        ),
+                        // Preview
+                        _listTileItem(
+                          todo: previewNewTodo,
+                        ),
+                        // Inpiut field
+                        CustomTextfield(
+                          controller: _todoTitleTextController,
+                          onChange: (value) {
+                            todoBlocContext.read<TodoBloc>().add(
+                                  UpdateTitle(
+                                    todoTitle: _todoTitleTextController.text,
+                                  ),
+                                );
+                          },
+                          errorText: todoBlocState.todoRequirement.titleIsError
+                              ? "title can't be empty"
+                              : null,
+                        ),
+                        CustomTextfield(
+                          controller: _todoDescTextController,
+                          onChange: (value) {
+                            todoBlocContext.read<TodoBloc>().add(
+                                  UpdateDesc(
+                                    todoDesc: _todoDescTextController.text,
+                                  ),
+                                );
+                          },
+                          errorText: todoBlocState.todoRequirement.descIsError
+                              ? "description can't be empty"
+                              : null,
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            _validateSubmitedTodo(
+                              todo: Todo(
+                                id: previewNewTodo.id,
+                                title: _todoTitleTextController.text,
+                                desc: _todoDescTextController.text,
+                                check: previewNewTodo.check,
+                              ),
+                              todoBlocContext: todoBlocContext,
+                              todoListBlocContext: todoListBlocContext,
+                              widgetContext: context,
+                            );
+                          },
+                          child: const Text("Add New Todo"),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _validateSubmitedTodo({
+    required Todo todo,
+    required BuildContext todoBlocContext,
+    required BuildContext todoListBlocContext,
+    required BuildContext widgetContext,
+  }) {
+    TodoRequirement requirement = TodoRequirement(
+      titleIsError: _todoTitleTextController.text.isEmpty,
+      descIsError: _todoDescTextController.text.isEmpty,
+    );
+    final eventValidation = TodoValidation(todoRequirement: requirement);
+    todoBlocContext.read<TodoBloc>().add(eventValidation);
+
+    if (requirement.titleIsError || requirement.descIsError) {
+      return;
+    }
+
+    todoListBlocContext.read<TodoListBloc>().add(
+          AddTodoListEvent(todo: todo),
+        );
+    todoBlocContext.read<TodoBloc>().add(
+          TodoValidation(
+            todoRequirement: TodoRequirement(
+              titleIsError: false,
+              descIsError: false,
             ),
           ),
         );
-      },
+    widgetContext.pop();
+    _todoTitleTextController.clear();
+    todoBlocContext.read<TodoBloc>().add(
+          UpdateTitle(
+            todoTitle: _todoTitleTextController.text,
+          ),
+        );
+    _todoDescTextController.clear();
+    todoBlocContext.read<TodoBloc>().add(
+          UpdateDesc(
+            todoDesc: _todoDescTextController.text,
+          ),
+        );
+  }
+
+  Widget _listTileItem({required Todo todo}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 19),
+      height: 70,
+      width: double.maxFinite,
+      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+      decoration: BoxDecoration(
+        color: _styleUtil.c_13,
+        borderRadius: BorderRadius.circular(28),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Leading
+          Container(
+            height: 32,
+            width: 32,
+            decoration: BoxDecoration(
+              color: _styleUtil.c_97,
+              borderRadius: BorderRadius.circular(50),
+            ),
+            child: Icon(
+              Icons.check,
+              color: _styleUtil.c_255,
+              size: 14,
+            ),
+          ),
+          const SizedBox(width: 22),
+          // Body
+          Flexible(
+            fit: FlexFit.tight,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  todo.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: _styleUtil.text_xl_Medium
+                      .copyWith(color: _styleUtil.c_255),
+                ),
+                Text(
+                  todo.desc,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: _styleUtil.text_Base_Regular
+                      .copyWith(color: _styleUtil.c_200),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -158,7 +361,7 @@ class ContentBody extends StatelessWidget {
         ),
         color: _styleUtil.c_16,
       ),
-      child: BlocBuilder<TodoBloc, TodoState>(
+      child: BlocBuilder<TodoListBloc, TodoListState>(
         builder: (context, state) {
           if (state.todoList.isNotEmpty) {
             final todoList = state.todoList;
@@ -183,7 +386,8 @@ class ContentBody extends StatelessWidget {
     return Stack(
       children: [
         ListView.builder(
-          padding: const EdgeInsets.only(left: 14, right: 14, top: 14, bottom: 100),
+          padding:
+              const EdgeInsets.only(left: 14, right: 14, top: 14, bottom: 100),
           itemCount: todoList.length,
           itemBuilder: (context, index) {
             final todo = todoList[index];
