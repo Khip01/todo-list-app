@@ -2,42 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../models/todo.dart';
-import '../../../../values/data.dart';
 
 part 'todo_event.dart';
+
 part 'todo_state.dart';
 
 class TodoBloc extends Bloc<TodoEvent, TodoState> {
   TodoBloc() : super(TodoInitial()) {
-    on<AddTodoEvent>(_addTodo);
-
-    on<UpdateTodoEvent>(_updateTodo);
-
-    on<DeleteTodoEvent>(_deleteTodo);
-
-    on<RefreshTodoEvent>(_refreshTodo);
+    on<UpdateTitle>(_todoUpdateTitle);
+    on<UpdateDesc>(_todoUpdateDesc);
+    on<TodoValidation>(_todoValidation);
   }
 
-  void _addTodo(AddTodoEvent event, Emitter<TodoState> emit) {
-    state.todoList.add(event.todo);
-    emit(TodoLoaded(todoList: state.todoList));
+  void _todoUpdateTitle(UpdateTitle event, Emitter<TodoState> emit) {
+    final Todo updatedTodo = state.todo.copyWith(title: event.todoTitle);
+    emit(TodoLoaded(todo: updatedTodo, todoRequirement: state.todoRequirement));
   }
 
-  void _updateTodo(UpdateTodoEvent event, Emitter<TodoState> emit){
-    for(int i = 0; i < state.todoList.length; i++){
-      if(state.todoList[i].id == event.todo.id){
-        state.todoList[i] = event.todo;
-      }
-    }
-    emit(TodoLoaded(todoList: state.todoList));
+  void _todoUpdateDesc(UpdateDesc event, Emitter<TodoState> emit) {
+    final Todo updatedTodo = state.todo.copyWith(desc: event.todoDesc);
+    emit(TodoLoaded(todo: updatedTodo, todoRequirement: state.todoRequirement));
   }
 
-  void _deleteTodo(DeleteTodoEvent event, Emitter<TodoState> emit){
-    state.todoList.remove(event.todo);
-    emit(TodoLoaded(todoList: state.todoList));
-  }
-
-  void _refreshTodo(RefreshTodoEvent event, Emitter<TodoState> emit){
-    emit(TodoLoaded(todoList: event.todoList));
+  void _todoValidation(TodoValidation event, Emitter<TodoState> emit) {
+    emit(
+      TodoLoaded(
+        todo: state.todo,
+        todoRequirement: TodoRequirement(
+          titleIsError: event.todoRequirement.titleIsError,
+          descIsError: event.todoRequirement.descIsError,
+        ),
+      ),
+    );
   }
 }
