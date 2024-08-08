@@ -6,6 +6,7 @@ import 'package:todo_list_app/utils/helper/generate_todo_index.dart';
 import 'package:todo_list_app/utils/style_util.dart';
 import 'package:todo_list_app/widgets/custom_drag_icon.dart';
 import 'package:todo_list_app/widgets/custom_textfield.dart';
+import 'package:todo_list_app/widgets/list_tile_item.dart';
 
 import '../../../models/todo.dart';
 import '../../../values/images.dart';
@@ -13,8 +14,6 @@ import '../blocs/todo_list/todo_list_bloc.dart';
 
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
-
-  final StyleUtil _styleUtil = StyleUtil();
 
   final TextEditingController _todoTitleTextController =
       TextEditingController();
@@ -26,7 +25,7 @@ class HomeScreen extends StatelessWidget {
     double deviceWidth = MediaQuery.sizeOf(context).width;
 
     return Scaffold(
-      backgroundColor: _styleUtil.c_24,
+      backgroundColor: StyleUtil.c_24,
       body: SafeArea(
         child: Stack(
           children: [
@@ -35,7 +34,7 @@ class HomeScreen extends StatelessWidget {
               width: deviceWidth,
               child: Column(
                 children: [
-                  CustomAppBar(),
+                  const CustomAppBar(),
                   Flexible(
                     fit: FlexFit.tight,
                     child: ContentBody(),
@@ -54,8 +53,8 @@ class HomeScreen extends StatelessWidget {
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      _styleUtil.c_16.withOpacity(1),
-                      _styleUtil.c_16.withOpacity(0),
+                      StyleUtil.c_16.withOpacity(1),
+                      StyleUtil.c_16.withOpacity(0),
                     ],
                     stops: const [
                       .7,
@@ -92,14 +91,14 @@ class HomeScreen extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(50),
           ),
-          overlayColor: _styleUtil.c_245,
-          backgroundColor: _styleUtil.c_97,
-          shadowColor: _styleUtil.c_97,
+          overlayColor: StyleUtil.c_245,
+          backgroundColor: StyleUtil.c_97,
+          shadowColor: StyleUtil.c_97,
           alignment: Alignment.center,
         ),
-        child: Icon(
+        child: const Icon(
           Icons.add,
-          color: _styleUtil.c_255,
+          color: StyleUtil.c_255,
           size: 18,
         ),
       ),
@@ -109,13 +108,11 @@ class HomeScreen extends StatelessWidget {
   void _showModalBottomSheet({
     required BuildContext context,
   }) {
-    final StyleUtil styleUtil = StyleUtil();
-
     showModalBottomSheet(
       clipBehavior: Clip.antiAlias,
       context: context,
       isScrollControlled: true,
-      backgroundColor: styleUtil.c_16,
+      backgroundColor: StyleUtil.c_16,
       builder: (context) {
         final keyboardBottomPadding = MediaQuery.of(context).viewInsets.bottom;
 
@@ -140,12 +137,12 @@ class HomeScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 10),
                           child: CustomDragIcon(),
                         ),
                         // Preview
-                        _listTileItem(
+                        ListTileItem(
                           todo: previewNewTodo,
                         ),
                         // Inpiut field
@@ -245,69 +242,10 @@ class HomeScreen extends StatelessWidget {
           ),
         );
   }
-
-  Widget _listTileItem({required Todo todo}) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 19),
-      height: 70,
-      width: double.maxFinite,
-      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-      decoration: BoxDecoration(
-        color: _styleUtil.c_13,
-        borderRadius: BorderRadius.circular(28),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Leading
-          Container(
-            height: 32,
-            width: 32,
-            decoration: BoxDecoration(
-              color: _styleUtil.c_97,
-              borderRadius: BorderRadius.circular(50),
-            ),
-            child: Icon(
-              Icons.check,
-              color: _styleUtil.c_255,
-              size: 14,
-            ),
-          ),
-          const SizedBox(width: 22),
-          // Body
-          Flexible(
-            fit: FlexFit.tight,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  todo.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: _styleUtil.text_xl_Medium
-                      .copyWith(color: _styleUtil.c_255),
-                ),
-                Text(
-                  todo.desc,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: _styleUtil.text_Base_Regular
-                      .copyWith(color: _styleUtil.c_200),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class CustomAppBar extends StatelessWidget {
-  CustomAppBar({super.key});
-
-  final StyleUtil _styleUtil = StyleUtil();
+  const CustomAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -329,13 +267,13 @@ class CustomAppBar extends StatelessWidget {
                 ),
                 Text(
                   "Todolist",
-                  style: _styleUtil.text_xl_Medium.copyWith(
-                    color: _styleUtil.c_245,
+                  style: StyleUtil.text_xl_Medium.copyWith(
+                    color: StyleUtil.c_245,
                   ),
                 ),
               ],
             ),
-            Icon(Icons.settings, size: 24, color: _styleUtil.c_73),
+            const Icon(Icons.settings, size: 24, color: StyleUtil.c_73),
           ],
         ),
       ),
@@ -346,7 +284,6 @@ class CustomAppBar extends StatelessWidget {
 class ContentBody extends StatelessWidget {
   ContentBody({super.key});
 
-  final StyleUtil _styleUtil = StyleUtil();
   late final double deviceWidth;
 
   @override
@@ -354,12 +291,12 @@ class ContentBody extends StatelessWidget {
     deviceWidth = MediaQuery.sizeOf(context).width;
 
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: const BorderRadius.only(
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.only(
           topLeft: Radius.circular(28),
           topRight: Radius.circular(28),
         ),
-        color: _styleUtil.c_16,
+        color: StyleUtil.c_16,
       ),
       child: BlocBuilder<TodoListBloc, TodoListState>(
         builder: (context, state) {
@@ -373,7 +310,7 @@ class ContentBody extends StatelessWidget {
               child: Text(
                 "Empty",
                 style:
-                    _styleUtil.text_xl_Medium.copyWith(color: _styleUtil.c_245),
+                    StyleUtil.text_xl_Medium.copyWith(color: StyleUtil.c_245),
               ),
             );
           }
@@ -391,7 +328,7 @@ class ContentBody extends StatelessWidget {
           itemCount: todoList.length,
           itemBuilder: (context, index) {
             final todo = todoList[index];
-            return _listTileItem(todo: todo);
+            return ListTileItem(todo: todo);
           },
         ),
         Align(
@@ -408,71 +345,14 @@ class ContentBody extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  _styleUtil.c_16.withOpacity(1),
-                  _styleUtil.c_16.withOpacity(0),
+                  StyleUtil.c_16.withOpacity(1),
+                  StyleUtil.c_16.withOpacity(0),
                 ],
               ),
             ),
           ),
         ),
       ],
-    );
-  }
-
-  Widget _listTileItem({required Todo todo}) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 19),
-      height: 70,
-      width: double.maxFinite,
-      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
-      decoration: BoxDecoration(
-        color: _styleUtil.c_13,
-        borderRadius: BorderRadius.circular(28),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          // Leading
-          Container(
-            height: 32,
-            width: 32,
-            decoration: BoxDecoration(
-              color: _styleUtil.c_97,
-              borderRadius: BorderRadius.circular(50),
-            ),
-            child: Icon(
-              Icons.check,
-              color: _styleUtil.c_255,
-              size: 14,
-            ),
-          ),
-          const SizedBox(width: 22),
-          // Body
-          Flexible(
-            fit: FlexFit.tight,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  todo.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: _styleUtil.text_xl_Medium
-                      .copyWith(color: _styleUtil.c_255),
-                ),
-                Text(
-                  todo.desc,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: _styleUtil.text_Base_Regular
-                      .copyWith(color: _styleUtil.c_200),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

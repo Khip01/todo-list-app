@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:todo_list_app/utils/style_util.dart';
 
 class CustomDragIcon extends StatelessWidget {
-  CustomDragIcon({super.key});
-
-  final StyleUtil _styleUtil = StyleUtil();
+  const CustomDragIcon({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +13,7 @@ class CustomDragIcon extends StatelessWidget {
         width: 40,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: _styleUtil.c_200,
+            color: StyleUtil.c_200,
             borderRadius: BorderRadius.circular(20),
           ),
         ),

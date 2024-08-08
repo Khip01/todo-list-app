@@ -18,7 +18,7 @@ class CustomTextfield extends StatelessWidget {
       controller: controller,
       decoration: InputDecoration(
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(28),
+          borderRadius: BorderRadius.circular(21),
         ),
         errorText: errorText,
       ),
