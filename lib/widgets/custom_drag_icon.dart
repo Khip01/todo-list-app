@@ -7,7 +7,7 @@ class CustomDragIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: SizedBox(
         height: 8,
         width: 40,

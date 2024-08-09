@@ -14,7 +14,7 @@ class ListTileItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 19),
+      margin: const EdgeInsets.only(bottom: 20),
       height: 70,
       width: double.maxFinite,
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
