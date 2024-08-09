@@ -8,6 +8,7 @@ class StyleUtil {
   static const Color c_16 = Color.fromARGB(255, 16, 16, 37);
   static const Color c_73 = Color.fromARGB(255, 73, 73, 134);
   static const Color c_97 = Color.fromARGB(255, 97, 97, 243);
+  static const Color c_89 = Color.fromARGB(255, 89, 89, 89);
   static const Color c_200 = Color.fromARGB(255, 200, 200, 200);
   static const Color c_245 = Color.fromARGB(255, 245, 245, 245);
   static const Color c_255 = Color.fromARGB(255, 255, 255, 255);

@@ -3,20 +3,20 @@ import '../models/todo.dart';
 class Data {
 
   static List<Todo> dummyTodoList = [
-    TodoListData.todolist_1,
-    TodoListData.todolist_2,
-    TodoListData.todolist_3,
-    TodoListData.todolist_4,
-    TodoListData.todolist_5,
-    TodoListData.todolist_6,
-    TodoListData.todolist_7,
-    TodoListData.todolist_8,
-    TodoListData.todolist_9,
-    TodoListData.todolist_10,
-    TodoListData.todolist_11,
-    TodoListData.todolist_12,
-    TodoListData.todolist_13,
     TodoListData.todolist_14,
+    TodoListData.todolist_13,
+    TodoListData.todolist_12,
+    TodoListData.todolist_11,
+    TodoListData.todolist_10,
+    TodoListData.todolist_9,
+    TodoListData.todolist_8,
+    TodoListData.todolist_7,
+    TodoListData.todolist_6,
+    TodoListData.todolist_5,
+    TodoListData.todolist_4,
+    TodoListData.todolist_3,
+    TodoListData.todolist_2,
+    TodoListData.todolist_1,
   ];
 
 }
