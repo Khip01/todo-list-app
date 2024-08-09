@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:todo_list_app/screens/home/blocs/todo/todo_bloc.dart';
 import 'package:todo_list_app/utils/helper/generate_todo_index.dart';
 import 'package:todo_list_app/utils/style_util.dart';
+import 'package:todo_list_app/widgets/custom_button.dart';
 import 'package:todo_list_app/widgets/custom_drag_icon.dart';
 import 'package:todo_list_app/widgets/custom_textfield.dart';
 import 'package:todo_list_app/widgets/list_tile_item.dart';
@@ -148,45 +149,60 @@ class HomeScreen extends StatelessWidget {
                         // Inpiut field
                         CustomTextfield(
                           controller: _todoTitleTextController,
-                          onChange: (value) {
-                            todoBlocContext.read<TodoBloc>().add(
-                                  UpdateTitle(
-                                    todoTitle: _todoTitleTextController.text,
-                                  ),
-                                );
-                          },
+                          hintText: "Todo Title",
+                          onChange: (value) => _onChangeTextField(
+                            todoBlocContext: todoBlocContext,
+                            eventUpdate: UpdateTitle(
+                              todoTitle: _todoTitleTextController.text,
+                            ),
+                            stateFieldError:
+                                todoBlocState.todoRequirement.titleIsError,
+                            eventValidation: TodoValidation(
+                              todoRequirement: TodoRequirement(
+                                titleIsError: false,
+                                descIsError:
+                                    todoBlocState.todoRequirement.descIsError,
+                              ),
+                            ),
+                          ),
                           errorText: todoBlocState.todoRequirement.titleIsError
                               ? "title can't be empty"
                               : null,
                         ),
                         CustomTextfield(
                           controller: _todoDescTextController,
-                          onChange: (value) {
-                            todoBlocContext.read<TodoBloc>().add(
-                                  UpdateDesc(
-                                    todoDesc: _todoDescTextController.text,
-                                  ),
-                                );
-                          },
+                          hintText: "Some Todo Description",
+                          onChange: (value) => _onChangeTextField(
+                            todoBlocContext: todoBlocContext,
+                            eventUpdate: UpdateDesc(
+                              todoDesc: _todoDescTextController.text,
+                            ),
+                            stateFieldError:
+                                todoBlocState.todoRequirement.descIsError,
+                            eventValidation: TodoValidation(
+                              todoRequirement: TodoRequirement(
+                                titleIsError:
+                                    todoBlocState.todoRequirement.titleIsError,
+                                descIsError: false,
+                              ),
+                            ),
+                          ),
                           errorText: todoBlocState.todoRequirement.descIsError
                               ? "description can't be empty"
                               : null,
                         ),
-                        ElevatedButton(
-                          onPressed: () {
-                            _validateSubmitedTodo(
-                              todo: Todo(
-                                id: previewNewTodo.id,
-                                title: _todoTitleTextController.text,
-                                desc: _todoDescTextController.text,
-                                check: previewNewTodo.check,
-                              ),
-                              todoBlocContext: todoBlocContext,
-                              todoListBlocContext: todoListBlocContext,
-                              widgetContext: context,
-                            );
-                          },
-                          child: const Text("Add New Todo"),
+                        CustomButton(
+                          onPressed: () => _validateSubmitedTodo(
+                            todo: Todo(
+                              id: previewNewTodo.id,
+                              title: _todoTitleTextController.text,
+                              desc: _todoDescTextController.text,
+                              check: previewNewTodo.check,
+                            ),
+                            todoBlocContext: todoBlocContext,
+                            todoListBlocContext: todoListBlocContext,
+                            widgetContext: context,
+                          ),
                         ),
                       ],
                     ),
@@ -198,6 +214,22 @@ class HomeScreen extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _onChangeTextField({
+    required BuildContext todoBlocContext,
+    required TodoEvent eventUpdate,
+    required bool stateFieldError,
+    required TodoEvent eventValidation,
+  }) {
+    todoBlocContext.read<TodoBloc>().add(
+          eventUpdate,
+        );
+    if (stateFieldError) {
+      todoBlocContext.read<TodoBloc>().add(
+            eventValidation,
+          );
+    }
   }
 
   void _validateSubmitedTodo({

@@ -21,7 +21,7 @@ class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
   }
 
   void _addTodo(AddTodoListEvent event, Emitter<TodoListState> emit) {
-    state.todoList.add(event.todo);
+    state.todoList.insert(0, event.todo);
     emit(TodoListLoaded(todoList: state.todoList));
   }
 
