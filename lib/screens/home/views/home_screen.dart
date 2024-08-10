@@ -145,6 +145,7 @@ class HomeScreen extends StatelessWidget {
                         // Preview
                         ListTileItem(
                           todo: previewNewTodo,
+                          isWidgetDummy: true,
                         ),
                         // Inpiut field
                         CustomTextfield(
@@ -360,7 +361,7 @@ class ContentBody extends StatelessWidget {
           itemCount: todoList.length,
           itemBuilder: (context, index) {
             final todo = todoList[index];
-            return ListTileItem(todo: todo);
+            return ListTileItem(todo: todo, listItemIndex: index);
           },
         ),
         Align(
