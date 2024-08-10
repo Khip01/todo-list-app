@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:todo_list_app/widgets/custom_checkbox.dart';
+import 'package:todo_list_app/widgets/spacing_widget.dart';
 
 import '../models/todo.dart';
 import '../utils/style_util.dart';
 
 class ListTileItem extends StatelessWidget {
   final Todo todo;
+  final bool? isWidgetDummy;
+  final int? listItemIndex;
 
   const ListTileItem({
     super.key,
     required this.todo,
-  });
+    this.isWidgetDummy,
+    this.listItemIndex,
+  }) : assert(isWidgetDummy != null || listItemIndex != null,
+            "there must be at least 1 atribute declared");
 
   @override
   Widget build(BuildContext context) {
@@ -26,20 +33,11 @@ class ListTileItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Leading
-          Container(
-            height: 32,
-            width: 32,
-            decoration: BoxDecoration(
-              color: StyleUtil.c_97,
-              borderRadius: BorderRadius.circular(50),
-            ),
-            child: const Icon(
-              Icons.check,
-              color: StyleUtil.c_255,
-              size: 14,
-            ),
+          CustomCheckbox(
+            listItemIndex: isWidgetDummy == false ? null : listItemIndex,
+            checkIsAlwaysFalse: isWidgetDummy == false ? null : isWidgetDummy,
           ),
-          const SizedBox(width: 22),
+          const SpacingWidget(horizontal: 22),
           // Body
           Flexible(
             fit: FlexFit.tight,
@@ -51,8 +49,8 @@ class ListTileItem extends StatelessWidget {
                   todo.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: StyleUtil.text_xl_Medium
-                      .copyWith(color: StyleUtil.c_255),
+                  style:
+                      StyleUtil.text_xl_Medium.copyWith(color: StyleUtil.c_255),
                 ),
                 Text(
                   todo.desc,
