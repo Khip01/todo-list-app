@@ -4,10 +4,12 @@ import '../utils/style_util.dart';
 
 class CustomButton extends StatelessWidget {
   final Function() onPressed;
+  final String buttonText;
 
   const CustomButton({
     super.key,
     required this.onPressed,
+    required this.buttonText,
   });
 
   @override
@@ -25,7 +27,7 @@ class CustomButton extends StatelessWidget {
           ),
           onPressed: onPressed,
           child: Text(
-            "Create New Todo!",
+            buttonText,
             style: StyleUtil.text_xl_Medium.copyWith(
               color: StyleUtil.c_255,
             ),
