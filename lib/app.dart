@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:todo_list_app/screens/home/blocs/setting/setting_bloc.dart';
 import 'package:todo_list_app/screens/home/blocs/todo/todo_bloc.dart';
 import 'package:todo_list_app/screens/home/blocs/todo_list/todo_list_bloc.dart';
 import 'package:todo_list_app/screens/home/views/home_screen.dart';
@@ -33,6 +34,7 @@ class MainApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => TodoListBloc()),
         BlocProvider(create: (context) => TodoBloc()),
+        BlocProvider(create: (context) => SettingBloc()),
       ],
       child: MaterialApp.router(
         routerConfig: _router,
