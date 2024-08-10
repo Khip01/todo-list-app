@@ -36,3 +36,9 @@ class TodoValidation extends TodoEvent {
 
   TodoValidation({required this.todoRequirement});
 }
+
+class TodoUpdateAll extends TodoEvent {
+  final Todo todo;
+
+  TodoUpdateAll({required this.todo});
+}

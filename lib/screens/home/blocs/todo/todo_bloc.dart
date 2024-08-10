@@ -12,6 +12,7 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
     on<UpdateTitle>(_todoUpdateTitle);
     on<UpdateDesc>(_todoUpdateDesc);
     on<TodoValidation>(_todoValidation);
+    on<TodoUpdateAll>(_todoUpdateAll);
   }
 
   void _todoUpdateTitle(UpdateTitle event, Emitter<TodoState> emit) {
@@ -34,5 +35,10 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
         ),
       ),
     );
+  }
+
+  void _todoUpdateAll(TodoUpdateAll event, Emitter<TodoState> emit){
+    final Todo updatedTodo = event.todo;
+    emit(TodoLoaded(todo: updatedTodo, todoRequirement: state.todoRequirement));
   }
 }
