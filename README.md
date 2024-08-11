@@ -13,11 +13,11 @@ Simple approach to understanding Bloc Provider
 
 ## 💻 My Development Environment 
 - OS | Windows 11
-- IDE | Android Studio
-- Emu | Android 11 Physical Device
+- IDE | Android Studio - Hedgehog 2023.1.1 Patch 2 
+- Emu | Physical Device - Android 11
 
 ## 📋 Requirements
-- Flutter: v3.22.3
+- Flutter: v3.22.3 or above
 
 ## 🚀 Feature
 Include Create, Read, Update, Delete a Todo List State Management using Flutter Bloc Provider
