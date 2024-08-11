@@ -29,7 +29,7 @@ Include Create, Read, Update, Delete a Todo List State Management using Flutter 
 [![My Skills](https://skillicons.dev/icons?i=dart,flutter,androidstudio)](https://github.com/Khip01)
 
 # 👏 Credit
-UI/UX Design taken from
+UI/UX Design inspired by
 [Figma Community | Todolist app design - for frontend practice](https://www.figma.com/community/file/1370605696421404678/todolist-app-design-for-frontend-practice) 
 
 ---
