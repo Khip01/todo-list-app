@@ -7,6 +7,7 @@ import 'package:todo_list_app/widgets/modal_bottom_sheet.dart';
 
 import '../../../models/todo.dart';
 import '../../../values/images.dart';
+import '../../../widgets/pressable_delete_button.dart';
 import '../blocs/todo_list/todo_list_bloc.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -151,7 +152,9 @@ class CustomAppBar extends StatelessWidget {
                   child: Icon(
                     Icons.settings,
                     size: 24,
-                    color: settingBlocState.isSettingMode ? StyleUtil.c_97:  StyleUtil.c_73,
+                    color: settingBlocState.isSettingMode
+                        ? StyleUtil.c_97
+                        : StyleUtil.c_73,
                   ),
                 ),
               ],
@@ -216,7 +219,48 @@ class ContentBody extends StatelessWidget {
               itemCount: todoList.length,
               itemBuilder: (context, index) {
                 final todo = todoList[index];
-                return ListTileItem(todo: todo, listItemIndex: index);
+                return SizedBox(
+                  height: 89,
+                  width: double.maxFinite,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      return Stack(
+                        children: [
+                          ListTileItem(todo: todo, listItemIndex: index),
+                          Visibility(
+                            visible: settingBlocState.isSettingMode,
+                            child: Align(
+                              alignment: Alignment.topRight,
+                              child: BlocBuilder<TodoListBloc, TodoListState>(
+                                builder: (todoListContext, todoListState) {
+                                  return PressableDeleteButton(
+                                    height: 70,
+                                    initWidth: 80,
+                                    maxWidth: constraints.maxWidth - 80,
+                                    animDuration:
+                                        const Duration(milliseconds: 3000),
+                                    onPressAct: () {
+                                      todoListContext.read<TodoListBloc>().add(
+                                            DeleteTodoListEvent(todo: todo),
+                                          );
+                                    },
+                                    child: const Align(
+                                      alignment: Alignment.centerRight,
+                                      child: Icon(
+                                        Icons.delete_outline,
+                                        color: StyleUtil.c_200,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                );
               },
             ),
             Align(
