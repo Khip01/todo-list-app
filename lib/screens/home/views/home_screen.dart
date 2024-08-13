@@ -8,6 +8,7 @@ import 'package:todo_list_app/widgets/modal_bottom_sheet.dart';
 import '../../../models/todo.dart';
 import '../../../values/images.dart';
 import '../../../widgets/pressable_delete_button.dart';
+import '../blocs/todo/todo_bloc.dart';
 import '../blocs/todo_list/todo_list_bloc.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -84,6 +85,8 @@ class HomeScreen extends StatelessWidget {
 
   Widget _customFloatingButton(
       BuildContext context, GlobalKey<AnimatedListState> listKey) {
+    return BlocBuilder<TodoBloc, TodoState>(
+  builder: (todoBlocContext, todoBlocState) {
     return Container(
       height: 48,
       width: 48,
@@ -93,6 +96,7 @@ class HomeScreen extends StatelessWidget {
           showCustomModalBottomSheet(
             context: context,
             listKey: listKey,
+            todoBlocContext: todoBlocContext,
           );
         },
         style: ElevatedButton.styleFrom(
@@ -113,6 +117,8 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
     );
+  },
+);
   }
 }
 

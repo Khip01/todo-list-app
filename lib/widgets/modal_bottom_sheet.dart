@@ -20,16 +20,23 @@ void showCustomModalBottomSheet({
   required BuildContext context,
   required GlobalKey<AnimatedListState> listKey,
   Todo? editedTodo,
-  BuildContext? todoBlocContext,
+  required BuildContext todoBlocContext,
 }) {
   // Update Field with existing todo
-  if (editedTodo != null && todoBlocContext != null) {
+  if (editedTodo != null) {
     _todoTitleTextController.text = editedTodo.title;
     _todoDescTextController.text = editedTodo.desc;
 
     todoBlocContext.read<TodoBloc>().add(
           TodoUpdateAll(todo: editedTodo),
         );
+  } else {
+    _todoTitleTextController.clear();
+    _todoDescTextController.clear();
+
+    todoBlocContext.read<TodoBloc>().add(
+      ClearTodoState(),
+    );
   }
 
   showModalBottomSheet(
