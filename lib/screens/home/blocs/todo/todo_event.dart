@@ -8,8 +8,8 @@ class UpdateTitle extends TodoEvent {
 
   UpdateTitle._updateTodo(this.todoTitle);
 
-  factory UpdateTitle({required String todoTitle}){
-    if(todoTitle.isEmpty){
+  factory UpdateTitle({required String todoTitle}) {
+    if (todoTitle.isEmpty) {
       return UpdateTitle._updateTodo("Todo Title");
     }
 
@@ -42,3 +42,5 @@ class TodoUpdateAll extends TodoEvent {
 
   TodoUpdateAll({required this.todo});
 }
+
+class ClearTodoState extends TodoEvent {}
