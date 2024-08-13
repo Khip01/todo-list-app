@@ -8,10 +8,12 @@ import '../utils/style_util.dart';
 
 class CustomEditIcon extends StatelessWidget {
   final Todo editedTodo;
+  final GlobalKey<AnimatedListState> listKey;
 
   const CustomEditIcon({
     super.key,
     required this.editedTodo,
+    required this.listKey,
   });
 
   @override
@@ -25,9 +27,10 @@ class CustomEditIcon extends StatelessWidget {
             child: GestureDetector(
               onTap: () {
                 showCustomModalBottomSheet(
-                    context: context,
-                    editedTodo: editedTodo,
-                    todoBlocContext: todoBlocContext,
+                  context: context,
+                  editedTodo: editedTodo,
+                  todoBlocContext: todoBlocContext,
+                  listKey: listKey,
                 );
               },
               child: const Icon(

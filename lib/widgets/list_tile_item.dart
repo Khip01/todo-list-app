@@ -12,14 +12,18 @@ class ListTileItem extends StatelessWidget {
   final Todo todo;
   final bool? isWidgetDummy;
   final int? listItemIndex;
+  final GlobalKey<AnimatedListState> listKey;
+  final Function()? onTap;
 
   const ListTileItem({
     super.key,
     required this.todo,
     this.isWidgetDummy,
     this.listItemIndex,
+    required this.listKey,
+    this.onTap,
   }) : assert(isWidgetDummy != null || listItemIndex != null,
-  "there must be at least 1 atribute declared");
+            "there must be at least 1 atribute declared");
 
   @override
   Widget build(BuildContext context) {
@@ -43,41 +47,69 @@ class ListTileItem extends StatelessWidget {
                 Visibility(
                   visible: !settingBlocState.isSettingMode,
                   child: CustomCheckbox(
-                    listItemIndex: isWidgetDummy == false ? null : listItemIndex,
-                    checkIsAlwaysFalse: isWidgetDummy == false
-                        ? null
-                        : isWidgetDummy,
+                    listItemIndex:
+                        isWidgetDummy == false ? null : listItemIndex,
+                    checkIsAlwaysFalse:
+                        isWidgetDummy == false ? null : isWidgetDummy,
                   ),
                 ),
                 Visibility(
                   visible: settingBlocState.isSettingMode,
                   child: CustomEditIcon(
                     editedTodo: todo,
+                    listKey: listKey,
                   ),
                 ),
                 const SpacingWidget(horizontal: 22),
                 // Body
                 Flexible(
                   fit: FlexFit.tight,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        todo.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style:
-                        StyleUtil.text_xl_Medium.copyWith(color: StyleUtil.c_255),
+                  child: GestureDetector(
+                    onTap: onTap,
+                    child: Container(
+                      color: Colors.transparent,
+                      width: double.maxFinite,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            todo.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: StyleUtil.text_xl_Medium.copyWith(
+                              color: isTodoChecked(
+                                StyleUtil.c_200,
+                                StyleUtil.c_255,
+                              ),
+                              decoration: isTodoChecked(
+                                TextDecoration.lineThrough,
+                                null,
+                              ),
+                              decorationColor: StyleUtil.c_255,
+                              decorationThickness: 2,
+                            ),
+                          ),
+                          Text(
+                            todo.desc,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: StyleUtil.text_Base_Regular.copyWith(
+                              color: isTodoChecked(
+                                StyleUtil.c_200,
+                                StyleUtil.c_200,
+                              ),
+                              decoration: isTodoChecked(
+                                TextDecoration.lineThrough,
+                                null,
+                              ),
+                              decorationColor: StyleUtil.c_255,
+                              decorationThickness: 2,
+                            ),
+                          ),
+                        ],
                       ),
-                      Text(
-                        todo.desc,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: StyleUtil.text_Base_Regular
-                            .copyWith(color: StyleUtil.c_200),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ],
@@ -86,5 +118,13 @@ class ListTileItem extends StatelessWidget {
         );
       },
     );
+  }
+
+  dynamic isTodoChecked(dynamic ifCondition, dynamic elseCondition) {
+    if (todo.check) {
+      return ifCondition;
+    } else {
+      return elseCondition;
+    }
   }
 }

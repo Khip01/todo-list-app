@@ -18,18 +18,18 @@ final TextEditingController _todoDescTextController = TextEditingController();
 
 void showCustomModalBottomSheet({
   required BuildContext context,
+  required GlobalKey<AnimatedListState> listKey,
   Todo? editedTodo,
   BuildContext? todoBlocContext,
 }) {
-
   // Update Field with existing todo
   if (editedTodo != null && todoBlocContext != null) {
     _todoTitleTextController.text = editedTodo.title;
     _todoDescTextController.text = editedTodo.desc;
 
     todoBlocContext.read<TodoBloc>().add(
-      TodoUpdateAll(todo: editedTodo),
-    );
+          TodoUpdateAll(todo: editedTodo),
+        );
   }
 
   showModalBottomSheet(
@@ -47,7 +47,7 @@ void showCustomModalBottomSheet({
               return BlocBuilder<TodoBloc, TodoState>(
                 builder: (todoBlocContext, todoBlocState) {
                   late Todo previewNewTodo;
-                  if(editedTodo == null || !settingBlocState.isSettingMode){
+                  if (editedTodo == null || !settingBlocState.isSettingMode) {
                     previewNewTodo = Todo(
                       id: generateTodoIndex(todoListBlocContext).toString(),
                       title: todoBlocState.todo.title,
@@ -79,6 +79,7 @@ void showCustomModalBottomSheet({
                           ListTileItem(
                             todo: previewNewTodo,
                             isWidgetDummy: true,
+                            listKey: listKey,
                           ),
                           // Inpiut field
                           CustomTextfield(
@@ -138,8 +139,11 @@ void showCustomModalBottomSheet({
                               todoListBlocContext: todoListBlocContext,
                               settingBlocState: settingBlocState,
                               widgetContext: context,
+                              listKey: listKey,
                             ),
-                            buttonText: settingBlocState.isSettingMode ? "Update The Todo!" : "Create New Todo!",
+                            buttonText: settingBlocState.isSettingMode
+                                ? "Update The Todo!"
+                                : "Create New Todo!",
                           ),
                         ],
                       ),
@@ -177,6 +181,7 @@ void _validateSubmitedTodo({
   required BuildContext todoListBlocContext,
   required SettingState settingBlocState,
   required BuildContext widgetContext,
+  required GlobalKey<AnimatedListState> listKey,
 }) {
   TodoRequirement requirement = TodoRequirement(
     titleIsError: _todoTitleTextController.text.isEmpty,
@@ -197,6 +202,10 @@ void _validateSubmitedTodo({
     todoListBlocContext.read<TodoListBloc>().add(
           AddTodoListEvent(todo: todo),
         );
+    // Animation insertItem
+    if (listKey.currentState != null) {
+      listKey.currentState!.insertItem(0);
+    }
   }
   todoBlocContext.read<TodoBloc>().add(
         TodoValidation(
