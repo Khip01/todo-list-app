@@ -18,6 +18,8 @@ class HomeScreen extends StatelessWidget {
     double deviceHeight = MediaQuery.sizeOf(context).height;
     double deviceWidth = MediaQuery.sizeOf(context).width;
 
+    final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
+
     return Scaffold(
       backgroundColor: StyleUtil.c_24,
       body: SafeArea(
@@ -33,7 +35,9 @@ class HomeScreen extends StatelessWidget {
                       const CustomAppBar(),
                       Flexible(
                         fit: FlexFit.tight,
-                        child: ContentBody(),
+                        child: ContentBody(
+                          listKey: listKey,
+                        ),
                       ),
                     ],
                   ),
@@ -65,7 +69,7 @@ class HomeScreen extends StatelessWidget {
                       ),
                       child: Align(
                         alignment: Alignment.centerRight,
-                        child: _customFloatingButton(context),
+                        child: _customFloatingButton(context, listKey),
                       ),
                     ),
                   ),
@@ -78,7 +82,8 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _customFloatingButton(BuildContext context) {
+  Widget _customFloatingButton(
+      BuildContext context, GlobalKey<AnimatedListState> listKey) {
     return Container(
       height: 48,
       width: 48,
@@ -87,6 +92,7 @@ class HomeScreen extends StatelessWidget {
         onPressed: () {
           showCustomModalBottomSheet(
             context: context,
+            listKey: listKey,
           );
         },
         style: ElevatedButton.styleFrom(
@@ -143,19 +149,10 @@ class CustomAppBar extends StatelessWidget {
                     ),
                   ],
                 ),
-                GestureDetector(
-                  onTap: () {
-                    settingBlocContext.read<SettingBloc>().add(
-                          UpdateSettingEvent(isSettingMode: !isSettingMode),
-                        );
-                  },
-                  child: Icon(
-                    Icons.settings,
-                    size: 24,
-                    color: settingBlocState.isSettingMode
-                        ? StyleUtil.c_97
-                        : StyleUtil.c_73,
-                  ),
+                CustomAnimatedSettingIcon(
+                  settingBlocContext: settingBlocContext,
+                  settingBlocState: settingBlocState,
+                  isSettingMode: isSettingMode,
                 ),
               ],
             ),
@@ -167,7 +164,12 @@ class CustomAppBar extends StatelessWidget {
 }
 
 class ContentBody extends StatelessWidget {
-  ContentBody({super.key});
+  final GlobalKey<AnimatedListState> listKey;
+
+  ContentBody({
+    super.key,
+    required this.listKey,
+  });
 
   late final double deviceWidth;
 
@@ -189,6 +191,7 @@ class ContentBody extends StatelessWidget {
             final todoList = state.todoList;
             return _listViewBody(
               todoList: todoList,
+              listKey: listKey,
             );
           } else {
             return Center(
@@ -204,64 +207,39 @@ class ContentBody extends StatelessWidget {
     );
   }
 
-  Widget _listViewBody({required List<Todo> todoList}) {
+  Widget _listViewBody({
+    required List<Todo> todoList,
+    required GlobalKey<AnimatedListState> listKey,
+  }) {
     return BlocBuilder<SettingBloc, SettingState>(
       builder: (settingBlocContext, settingBlocState) {
         return Stack(
           children: [
-            ListView.builder(
+            AnimatedPadding(
               padding: EdgeInsets.only(
-                left: 14,
-                right: 14,
-                top: 14,
                 bottom: settingBlocState.isSettingMode ? 14 : 100,
               ),
-              itemCount: todoList.length,
-              itemBuilder: (context, index) {
-                final todo = todoList[index];
-                return SizedBox(
-                  height: 89,
-                  width: double.maxFinite,
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      return Stack(
-                        children: [
-                          ListTileItem(todo: todo, listItemIndex: index),
-                          Visibility(
-                            visible: settingBlocState.isSettingMode,
-                            child: Align(
-                              alignment: Alignment.topRight,
-                              child: BlocBuilder<TodoListBloc, TodoListState>(
-                                builder: (todoListContext, todoListState) {
-                                  return PressableDeleteButton(
-                                    height: 70,
-                                    initWidth: 80,
-                                    maxWidth: constraints.maxWidth - 80,
-                                    animDuration:
-                                        const Duration(milliseconds: 3000),
-                                    onPressAct: () {
-                                      todoListContext.read<TodoListBloc>().add(
-                                            DeleteTodoListEvent(todo: todo),
-                                          );
-                                    },
-                                    child: const Align(
-                                      alignment: Alignment.centerRight,
-                                      child: Icon(
-                                        Icons.delete_outline,
-                                        color: StyleUtil.c_200,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                );
-              },
+              duration: const Duration(milliseconds: 500),
+              curve: Curves.easeInOut,
+              child: AnimatedList(
+                key: listKey,
+                padding: const EdgeInsets.only(
+                  left: 14,
+                  right: 14,
+                  top: 14,
+                ),
+                initialItemCount: todoList.length,
+                itemBuilder: (context, index, anim) {
+                  final todo = todoList[index];
+                  return _listItem(
+                    todo: todo,
+                    index: index,
+                    anim: anim,
+                    listKey: listKey,
+                    settingBlocState: settingBlocState,
+                  );
+                },
+              ),
             ),
             Align(
               alignment: Alignment.topCenter,
@@ -287,6 +265,208 @@ class ContentBody extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+
+  Widget _listItem({
+    required Todo todo,
+    required int index,
+    required Animation<double> anim,
+    required GlobalKey<AnimatedListState> listKey,
+    required SettingState settingBlocState,
+  }) {
+    return SizeTransition(
+      sizeFactor: anim,
+      child: SizedBox(
+        height: 89,
+        width: double.maxFinite,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Stack(
+              children: [
+                ListTileItem(
+                  todo: todo,
+                  listItemIndex: index,
+                  listKey: listKey,
+                  onTap: () => _dialogBuilder(
+                    context: context,
+                    title: todo.title,
+                    desc: todo.desc,
+                  ),
+                ),
+                Visibility(
+                  visible: settingBlocState.isSettingMode,
+                  child: Align(
+                    alignment: Alignment.topRight,
+                    child: BlocBuilder<TodoListBloc, TodoListState>(
+                      builder: (todoListContext, todoListState) {
+                        return PressableDeleteButton(
+                          height: 70,
+                          initWidth: 80,
+                          maxWidth: constraints.maxWidth - 80,
+                          animDuration: const Duration(milliseconds: 3000),
+                          onPressAct: () {
+                            todoListContext.read<TodoListBloc>().add(
+                                  DeleteTodoListEvent(todo: todo),
+                                );
+                            if (listKey.currentState != null) {
+                              _deleteAnimationListHandler(
+                                removedIndex: index,
+                                todo: todo,
+                                settingBlocState: settingBlocState,
+                              );
+                            }
+                          },
+                          child: const Align(
+                            alignment: Alignment.centerRight,
+                            child: Icon(
+                              Icons.delete_outline,
+                              color: StyleUtil.c_200,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _deleteAnimationListHandler({
+    required int removedIndex,
+    required Todo todo,
+    required SettingState settingBlocState,
+  }) {
+    // Animation
+    listKey.currentState!.removeItem(
+      removedIndex,
+      (context, anim) {
+        return _listItem(
+          todo: todo,
+          index: removedIndex,
+          anim: anim,
+          listKey: listKey,
+          settingBlocState: settingBlocState,
+        );
+      },
+    );
+  }
+
+  Future<void> _dialogBuilder({
+    required BuildContext context,
+    required String title,
+    required String desc,
+  }) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: StyleUtil.c_13,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+          ),
+          title: Container(
+            constraints: const BoxConstraints(
+              maxHeight: 125,
+            ),
+            child: SingleChildScrollView(
+              child: Text(
+                title,
+                style: StyleUtil.text_xl_Medium.copyWith(
+                  color: StyleUtil.c_255,
+                ),
+              ),
+            ),
+          ),
+          content: SizedBox(
+            height: 250,
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    desc,
+                    style: StyleUtil.text_Base_Regular.copyWith(
+                      color: StyleUtil.c_200,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class CustomAnimatedSettingIcon extends StatefulWidget {
+  final BuildContext settingBlocContext;
+  final SettingState settingBlocState;
+  final bool isSettingMode;
+
+  const CustomAnimatedSettingIcon({
+    super.key,
+    required this.settingBlocContext,
+    required this.settingBlocState,
+    required this.isSettingMode,
+  });
+
+  @override
+  State<CustomAnimatedSettingIcon> createState() =>
+      _CustomAnimatedSettingIconState();
+}
+
+class _CustomAnimatedSettingIconState extends State<CustomAnimatedSettingIcon>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+      upperBound: 0.5,
+    );
+
+    _animation = Tween<double>(
+      begin: 0,
+      end: 1,
+    ).animate(_controller);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RotationTransition(
+      turns: _animation,
+      child: GestureDetector(
+        onTap: () {
+          widget.settingBlocContext.read<SettingBloc>().add(
+                UpdateSettingEvent(isSettingMode: !widget.isSettingMode),
+              );
+          if (!widget.isSettingMode) {
+            _controller.forward();
+          } else {
+            _controller.reverse();
+          }
+        },
+        child: Icon(
+          Icons.settings,
+          size: 24,
+          color: widget.settingBlocState.isSettingMode
+              ? StyleUtil.c_97
+              : StyleUtil.c_73,
+        ),
+      ),
     );
   }
 }
