@@ -29,7 +29,7 @@ Include Create, Read, Update, Delete a Todo List State Management using Flutter 
 **Try and Install** this app on your device <br>by visiting the **[Releases page](https://github.com/Khip01/todo-list-app/releases)** of this repo! <br>
 
 # 📦 Use
-[![My Skills](https://skillicons.dev/icons?i=dart,flutter,androidstudio)](https://github.com/Khip01)
+[![My Skills](https://skillicons.dev/icons?i=dart,flutter,sqlite,androidstudio)](https://github.com/Khip01)
 
 # 👏 Credit
 UI/UX Design inspired by
