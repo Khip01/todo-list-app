@@ -5,6 +5,7 @@ import 'package:todo_list_app/utils/style_util.dart';
 import 'package:todo_list_app/widgets/list_tile_item.dart';
 import 'package:todo_list_app/widgets/modal_bottom_sheet.dart';
 
+import '../../../data/repository/todo_repository.dart';
 import '../../../models/todo.dart';
 import '../../../values/images.dart';
 import '../../../widgets/pressable_delete_button.dart';
@@ -20,6 +21,9 @@ class HomeScreen extends StatelessWidget {
     double deviceWidth = MediaQuery.sizeOf(context).width;
 
     final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
+
+    // retrive Data from database -> state in bloc provider
+    context.read<TodoListBloc>().add(LoadTodoList());
 
     return Scaffold(
       backgroundColor: StyleUtil.c_24,
@@ -86,39 +90,39 @@ class HomeScreen extends StatelessWidget {
   Widget _customFloatingButton(
       BuildContext context, GlobalKey<AnimatedListState> listKey) {
     return BlocBuilder<TodoBloc, TodoState>(
-  builder: (todoBlocContext, todoBlocState) {
-    return Container(
-      height: 48,
-      width: 48,
-      margin: const EdgeInsets.only(right: 14, top: 14),
-      child: ElevatedButton(
-        onPressed: () {
-          showCustomModalBottomSheet(
-            context: context,
-            listKey: listKey,
-            todoBlocContext: todoBlocContext,
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          elevation: 1,
-          padding: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(50),
+      builder: (todoBlocContext, todoBlocState) {
+        return Container(
+          height: 48,
+          width: 48,
+          margin: const EdgeInsets.only(right: 14, top: 14),
+          child: ElevatedButton(
+            onPressed: () {
+              showCustomModalBottomSheet(
+                context: context,
+                listKey: listKey,
+                todoBlocContext: todoBlocContext,
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              elevation: 1,
+              padding: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(50),
+              ),
+              overlayColor: StyleUtil.c_245,
+              backgroundColor: StyleUtil.c_97,
+              shadowColor: StyleUtil.c_97,
+              alignment: Alignment.center,
+            ),
+            child: const Icon(
+              Icons.add,
+              color: StyleUtil.c_255,
+              size: 18,
+            ),
           ),
-          overlayColor: StyleUtil.c_245,
-          backgroundColor: StyleUtil.c_97,
-          shadowColor: StyleUtil.c_97,
-          alignment: Alignment.center,
-        ),
-        child: const Icon(
-          Icons.add,
-          color: StyleUtil.c_255,
-          size: 18,
-        ),
-      ),
+        );
+      },
     );
-  },
-);
   }
 }
 
@@ -192,20 +196,31 @@ class ContentBody extends StatelessWidget {
         color: StyleUtil.c_16,
       ),
       child: BlocBuilder<TodoListBloc, TodoListState>(
-        builder: (context, state) {
-          if (state.todoList.isNotEmpty) {
-            final todoList = state.todoList;
-            return _listViewBody(
-              todoList: todoList,
-              listKey: listKey,
-            );
-          } else {
+        builder: (todoListBlocContext, todoListBlocState) {
+          if (todoListBlocState is TodoListInitial ||
+              todoListBlocState.todoList.isEmpty) {
             return Center(
               child: Text(
                 "Empty",
                 style:
                     StyleUtil.text_xl_Medium.copyWith(color: StyleUtil.c_245),
               ),
+            );
+          } else if (todoListBlocState is TodoListLoaded &&
+              todoListBlocState.todoList.isNotEmpty) {
+            final todoList = todoListBlocState.todoList;
+            return _listViewBody(
+              todoList: todoList,
+              listKey: listKey,
+            );
+          } else if (todoListBlocState is TodoListError) {
+            return Center(
+              child: Text(todoListBlocState.message!),
+            );
+          } else {
+            // TodoListLoading
+            return const Center(
+              child: CircularProgressIndicator(),
             );
           }
         },
@@ -311,7 +326,10 @@ class ContentBody extends StatelessWidget {
                           initWidth: 80,
                           maxWidth: constraints.maxWidth - 80,
                           animDuration: const Duration(milliseconds: 3000),
-                          onPressAct: () {
+                          onPressAct: () async {
+                            await TodoRepository()
+                                .deleteTodo(id: int.parse(todo.id));
+                            if (!todoListContext.mounted) return;
                             todoListContext.read<TodoListBloc>().add(
                                   DeleteTodoListEvent(todo: todo),
                                 );
