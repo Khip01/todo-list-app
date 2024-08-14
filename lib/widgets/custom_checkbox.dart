@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:todo_list_app/data/repository/todo_repository.dart';
 import 'package:todo_list_app/screens/home/blocs/todo_list/todo_list_bloc.dart';
 
+import '../models/todo.dart';
 import '../utils/style_util.dart';
 
 class CustomCheckbox extends StatelessWidget {
@@ -72,11 +74,14 @@ class CheckBoxMain extends StatelessWidget {
       builder: (todoListContext, todoListState) {
         bool isChecked = todoListState.todoList[onListIndex].check;
         return GestureDetector(
-          onTap: () {
+          onTap: () async {
+            final Todo updatedTodo =
+                todoListState.todoList[onListIndex].copyWith(check: !isChecked);
+            await TodoRepository().updateTodo(todo: updatedTodo);
+            if(!todoListContext.mounted) return;
             todoListContext.read<TodoListBloc>().add(
                   UpdateTodoListEvent(
-                    todo: todoListState.todoList[onListIndex]
-                        .copyWith(check: !isChecked),
+                    todo: updatedTodo,
                   ),
                 );
           },

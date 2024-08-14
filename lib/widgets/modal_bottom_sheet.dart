@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:todo_list_app/data/repository/todo_repository.dart';
 
 import '../models/todo.dart';
 import '../screens/home/blocs/setting/setting_bloc.dart';
@@ -189,7 +190,7 @@ void _validateSubmitedTodo({
   required SettingState settingBlocState,
   required BuildContext widgetContext,
   required GlobalKey<AnimatedListState> listKey,
-}) {
+}) async {
   TodoRequirement requirement = TodoRequirement(
     titleIsError: _todoTitleTextController.text.isEmpty,
     descIsError: _todoDescTextController.text.isEmpty,
@@ -202,10 +203,18 @@ void _validateSubmitedTodo({
   }
 
   if (settingBlocState.isSettingMode) {
+    // Update Todo -> SQFlite
+    await TodoRepository().updateTodo(todo: todo);
+    // Update State
+    if (!todoListBlocContext.mounted) return;
     todoListBlocContext.read<TodoListBloc>().add(
           UpdateTodoListEvent(todo: todo),
         );
   } else {
+    // Add Todo -> SQLFlite
+    await TodoRepository().addTodo(todo: todo);
+    // Update Add State
+    if (!todoListBlocContext.mounted) return;
     todoListBlocContext.read<TodoListBloc>().add(
           AddTodoListEvent(todo: todo),
         );
