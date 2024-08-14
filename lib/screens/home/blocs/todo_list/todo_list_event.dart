@@ -21,11 +21,7 @@ class DeleteTodoListEvent extends TodoListEvent {
   DeleteTodoListEvent({required this.todo});
 }
 
-class RefreshTodoListEvent extends TodoListEvent {
-  final List<Todo> todoList;
-
-  RefreshTodoListEvent({required this.todoList});
-}
+class LoadTodoList extends TodoListEvent {}
 
 class SetIsError extends TodoListEvent {
   final bool isError;

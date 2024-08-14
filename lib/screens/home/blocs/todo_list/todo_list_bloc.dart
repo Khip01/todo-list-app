@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:todo_list_app/data/repository/todo_repository.dart';
 
 import '../../../../models/todo.dart';
-import '../../../../values/data.dart';
 
 part 'todo_list_event.dart';
 part 'todo_list_state.dart';
@@ -15,7 +15,7 @@ class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
 
     on<DeleteTodoListEvent>(_deleteTodo);
 
-    on<RefreshTodoListEvent>(_refreshTodo);
+    on<LoadTodoList>(_loadTodoList);
     
     on<SetIsError>(_setIsError);
   }
@@ -39,8 +39,18 @@ class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
     emit(TodoListLoaded(todoList: state.todoList));
   }
 
-  void _refreshTodo(RefreshTodoListEvent event, Emitter<TodoListState> emit){
-    emit(TodoListLoaded(todoList: event.todoList));
+  void _loadTodoList(LoadTodoList event, Emitter<TodoListState> emit) async {
+    try{
+      emit(TodoListLoading());
+      final List<Todo> todoList = await TodoRepository().getTodoList();
+      if(todoList.isEmpty){
+        emit(TodoListInitial());
+      } else {
+        emit(TodoListLoaded(todoList: todoList));
+      }
+    } catch (error) {
+      emit(TodoListError(todoList: [], message: "Error Bro\nLog: $error"));
+    }
   }
 
   void _setIsError (SetIsError event, Emitter<TodoListState> emit) {
