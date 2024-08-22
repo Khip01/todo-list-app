@@ -12,6 +12,8 @@ class StyleUtil {
   static const Color c_200 = Color.fromARGB(255, 200, 200, 200);
   static const Color c_245 = Color.fromARGB(255, 245, 245, 245);
   static const Color c_255 = Color.fromARGB(255, 255, 255, 255);
+  static const Color c_delete_inactive = Color.fromARGB(255, 79, 0, 0);
+  static const Color c_delete_active = Color.fromARGB(255, 183, 0, 0);
 
   // Font Style
 
