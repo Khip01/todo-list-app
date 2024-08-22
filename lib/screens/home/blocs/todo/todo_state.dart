@@ -14,6 +14,7 @@ final class TodoInitial extends TodoState {
     check: false,
     title: "Todo Title",
     desc: "Some Todo Description",
+    scheduledTime: null,
   );
 
   TodoInitial()

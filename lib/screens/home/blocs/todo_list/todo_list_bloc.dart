@@ -39,14 +39,14 @@ class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
     emit(TodoListLoaded(todoList: state.todoList));
   }
 
-  void _loadTodoList(LoadTodoList event, Emitter<TodoListState> emit) async {
+  Future<void> _loadTodoList(LoadTodoList event, Emitter<TodoListState> emit) async {
     try{
       emit(TodoListLoading());
       final List<Todo> todoList = await TodoRepository().getTodoList();
       if(todoList.isEmpty){
         emit(TodoListInitial());
       } else {
-        emit(TodoListLoaded(todoList: todoList));
+        emit(TodoListLoaded(todoList: todoList.reversed.toList()));
       }
     } catch (error) {
       emit(TodoListError(todoList: [], message: "Error Bro\nLog: $error"));
