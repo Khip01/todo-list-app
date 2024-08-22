@@ -24,6 +24,21 @@ class TodoRepository {
     return todoListJson.map((element) => Todo.fromJson(element)).toList();
   }
 
+  // Get Specific Todo
+  Future<Todo> getTodoFromId({required int id}) async {
+    final Database database = await TodoDatabase().getDatabase;
+
+    final Map<String, dynamic> todoJson = (await database.query(
+      todoTableName,
+      where: "${TodoTable.id} = ?",
+      whereArgs: [id],
+    )).first;
+
+    Todo todoObject = Todo.fromJson(todoJson);
+
+    return todoObject;
+  }
+
   // Create New Todo
   Future<void> addTodo({required Todo todo}) async {
     final Database database = await TodoDatabase().getDatabase;

@@ -16,7 +16,7 @@ class TodoDatabase {
   static Database? _database;
 
   Future<Database> get getDatabase async {
-    if(_database != null) return _database!;
+    if (_database != null) return _database!;
 
     _database = await _openNewDatabase(databaseName);
     return _database!;
@@ -26,7 +26,12 @@ class TodoDatabase {
     final String databasePath = await getDatabasesPath();
     final String path = join(databasePath, filePath);
 
-    return openDatabase(path, version: 1, onCreate: _onCreateTable);
+    return openDatabase(
+      path,
+      version: 2,
+      onCreate: _onCreateTable,
+      onUpgrade: _onUpgradeTable,
+    );
   }
 
   // Create New Table
@@ -36,8 +41,17 @@ class TodoDatabase {
         "${TodoTable.id} ${TodoTable.idType}, "
         "${TodoTable.title} ${TodoTable.titleType}, "
         "${TodoTable.desc} ${TodoTable.descType}, "
-        "${TodoTable.check} ${TodoTable.checkType}"
+        "${TodoTable.check} ${TodoTable.checkType}, "
+        "${TodoTable.scheduledTime} ${TodoTable.scheduledTimeType}"
         ")");
   }
-}
 
+  // Update Added New table scheduledTime
+  Future<void> _onUpgradeTable(
+      Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < newVersion) {
+      await db.execute(
+          'ALTER TABLE $todoTableName ADD COLUMN ${TodoTable.scheduledTime} ${TodoTable.scheduledTimeType}');
+    }
+  }
+}
