@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_list_app/screens/home/blocs/setting/setting_bloc.dart';
+import 'package:todo_list_app/utils/helper/local_notification_helper.dart';
 import 'package:todo_list_app/utils/style_util.dart';
 import 'package:todo_list_app/widgets/list_tile_item.dart';
 import 'package:todo_list_app/widgets/modal_bottom_sheet.dart';
+import 'package:todo_list_app/widgets/spacing_widget.dart';
 
 import '../../../data/repository/todo_repository.dart';
 import '../../../models/todo.dart';
@@ -311,8 +313,7 @@ class ContentBody extends StatelessWidget {
                   listKey: listKey,
                   onTap: () => _dialogBuilder(
                     context: context,
-                    title: todo.title,
-                    desc: todo.desc,
+                    todo: todo,
                   ),
                 ),
                 Visibility(
@@ -327,12 +328,18 @@ class ContentBody extends StatelessWidget {
                           maxWidth: constraints.maxWidth - 80,
                           animDuration: const Duration(milliseconds: 3000),
                           onPressAct: () async {
+                            // Bloc
                             await TodoRepository()
                                 .deleteTodo(id: int.parse(todo.id));
                             if (!todoListContext.mounted) return;
                             todoListContext.read<TodoListBloc>().add(
                                   DeleteTodoListEvent(todo: todo),
                                 );
+                            // close the notification, if any
+                            LocalNotificationHelper.closeSpecificNotification(
+                              id: int.parse(todo.id),
+                            );
+                            // Animation Handler
                             if (listKey.currentState != null) {
                               _deleteAnimationListHandler(
                                 removedIndex: index,
@@ -383,8 +390,7 @@ class ContentBody extends StatelessWidget {
 
   Future<void> _dialogBuilder({
     required BuildContext context,
-    required String title,
-    required String desc,
+    required Todo todo,
   }) {
     return showDialog(
       context: context,
@@ -399,31 +405,78 @@ class ContentBody extends StatelessWidget {
               maxHeight: 125,
             ),
             child: SingleChildScrollView(
-              child: Text(
-                title,
-                style: StyleUtil.text_xl_Medium.copyWith(
-                  color: StyleUtil.c_255,
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    if (todo.check)
+                      TextSpan(
+                        text: "[COMPLETED] ",
+                        style: StyleUtil.text_xl_Medium.copyWith(
+                          color: StyleUtil.c_255,
+                        ),
+                      ),
+                    TextSpan(
+                      text: todo.title,
+                      style: StyleUtil.text_xl_Regular.copyWith(
+                        color: StyleUtil.c_200,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-          content: SizedBox(
-            height: 250,
-            width: double.maxFinite,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    desc,
-                    style: StyleUtil.text_Base_Regular.copyWith(
-                      color: StyleUtil.c_200,
-                    ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 250,
+                width: double.maxFinite,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        todo.desc,
+                        style: StyleUtil.text_Base_Regular.copyWith(
+                          color: StyleUtil.c_200,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+              todo.scheduledTime != null && todo.scheduledTime!.isNotEmpty
+                  ? Container(
+                      constraints: const BoxConstraints(
+                        maxHeight: 125,
+                      ),
+                      width: double.maxFinite,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SpacingWidget(vertical: 20),
+                          Text(
+                            "Scheduled on ",
+                            style: StyleUtil.text_Base_Medium.copyWith(
+                              color: StyleUtil.c_255,
+                            ),
+                          ),
+                          const SpacingWidget(vertical: 5),
+                          Text(
+                            todo.scheduledTime!,
+                            style: StyleUtil.text_Base_Regular.copyWith(
+                              color: StyleUtil.c_200,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox(),
+            ],
           ),
         );
       },
