@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/style_util.dart';
+
 class PressableDeleteButton extends StatefulWidget {
   final double height;
   final double initWidth;
@@ -54,8 +56,8 @@ class _PressableDeleteButtonState extends State<PressableDeleteButton>
       });
 
     _animationColor = ColorTween(
-      begin: const Color.fromARGB(255, 79, 0, 0),
-      end: const Color.fromARGB(255, 183, 0, 0),
+      begin: StyleUtil.c_delete_inactive,
+      end: StyleUtil.c_delete_active,
     ).animate(_animationColorController);
   }
 

@@ -1,12 +1,20 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:todo_list_app/data/repository/todo_repository.dart';
+import 'package:todo_list_app/utils/helper/local_notification_helper.dart';
+import 'package:todo_list_app/utils/helper_class/todo_form_controller.dart';
+import 'package:todo_list_app/widgets/custom_textfield_datetime.dart';
+import 'package:todo_list_app/widgets/textfield_section_clear_button.dart';
+import 'package:timezone/timezone.dart' as timezone;
 
 import '../models/todo.dart';
 import '../screens/home/blocs/setting/setting_bloc.dart';
 import '../screens/home/blocs/todo/todo_bloc.dart';
 import '../screens/home/blocs/todo_list/todo_list_bloc.dart';
+import '../utils/helper/datetime_formatter.dart';
 import '../utils/helper/generate_todo_index.dart';
 import '../utils/style_util.dart';
 import 'custom_button.dart';
@@ -14,30 +22,38 @@ import 'custom_drag_icon.dart';
 import 'custom_textfield.dart';
 import 'list_tile_item.dart';
 
-final TextEditingController _todoTitleTextController = TextEditingController();
-final TextEditingController _todoDescTextController = TextEditingController();
-
 void showCustomModalBottomSheet({
   required BuildContext context,
   required GlobalKey<AnimatedListState> listKey,
   Todo? editedTodo,
   required BuildContext todoBlocContext,
 }) {
+  final TodoFormController prop = TodoFormController(
+    todoTitleTextController: TextEditingController(),
+    todoTitleFocusNode: FocusNode(),
+    todoDescTextController: TextEditingController(),
+    todoDescFocusNode: FocusNode(),
+    todoScheduledTextController: TextEditingController(),
+    todoScheduledFocusNode: FocusNode(),
+  );
+
   // Update Field with existing todo
   if (editedTodo != null) {
-    _todoTitleTextController.text = editedTodo.title;
-    _todoDescTextController.text = editedTodo.desc;
+    prop.todoTitleTextController.text = editedTodo.title;
+    prop.todoDescTextController.text = editedTodo.desc;
+    prop.todoScheduledTextController.text = editedTodo.scheduledTime ?? "";
 
     todoBlocContext.read<TodoBloc>().add(
           TodoUpdateAll(todo: editedTodo),
         );
   } else {
-    _todoTitleTextController.clear();
-    _todoDescTextController.clear();
+    prop.todoTitleTextController.clear();
+    prop.todoDescTextController.clear();
+    prop.todoScheduledTextController.clear();
 
     todoBlocContext.read<TodoBloc>().add(
-      ClearTodoState(),
-    );
+          ClearTodoState(),
+        );
   }
 
   showModalBottomSheet(
@@ -90,13 +106,13 @@ void showCustomModalBottomSheet({
                             listKey: listKey,
                           ),
                           // Inpiut field
-                          CustomTextfield(
-                            controller: _todoTitleTextController,
-                            hintText: "Todo Title",
-                            onChange: (value) => _onChangeTextField(
+                          TextFieldSectionWithClearButton(
+                            controller: prop.todoTitleTextController,
+                            focusNode: prop.todoTitleFocusNode,
+                            textOnRemove: (value) => _onChangeTextField(
                               todoBlocContext: todoBlocContext,
                               eventUpdate: UpdateTitle(
-                                todoTitle: _todoTitleTextController.text,
+                                todoTitle: prop.todoTitleTextController.text,
                               ),
                               stateFieldError:
                                   todoBlocState.todoRequirement.titleIsError,
@@ -108,18 +124,38 @@ void showCustomModalBottomSheet({
                                 ),
                               ),
                             ),
-                            errorText:
-                                todoBlocState.todoRequirement.titleIsError
-                                    ? "title can't be empty"
-                                    : null,
+                            textFieldChild: CustomTextfield(
+                              controller: prop.todoTitleTextController,
+                              focusNode: prop.todoTitleFocusNode,
+                              hintText: "Todo Title",
+                              onChange: (value) => _onChangeTextField(
+                                todoBlocContext: todoBlocContext,
+                                eventUpdate: UpdateTitle(
+                                  todoTitle: prop.todoTitleTextController.text,
+                                ),
+                                stateFieldError:
+                                    todoBlocState.todoRequirement.titleIsError,
+                                eventValidation: TodoValidation(
+                                  todoRequirement: TodoRequirement(
+                                    titleIsError: false,
+                                    descIsError: todoBlocState
+                                        .todoRequirement.descIsError,
+                                  ),
+                                ),
+                              ),
+                              errorText:
+                                  todoBlocState.todoRequirement.titleIsError
+                                      ? "title can't be empty"
+                                      : null,
+                            ),
                           ),
-                          CustomTextfield(
-                            controller: _todoDescTextController,
-                            hintText: "Some Todo Description",
-                            onChange: (value) => _onChangeTextField(
+                          TextFieldSectionWithClearButton(
+                            controller: prop.todoDescTextController,
+                            focusNode: prop.todoDescFocusNode,
+                            textOnRemove: (value) => _onChangeTextField(
                               todoBlocContext: todoBlocContext,
                               eventUpdate: UpdateDesc(
-                                todoDesc: _todoDescTextController.text,
+                                todoDesc: prop.todoDescTextController.text,
                               ),
                               stateFieldError:
                                   todoBlocState.todoRequirement.descIsError,
@@ -131,23 +167,56 @@ void showCustomModalBottomSheet({
                                 ),
                               ),
                             ),
-                            errorText: todoBlocState.todoRequirement.descIsError
-                                ? "description can't be empty"
-                                : null,
+                            textFieldChild: CustomTextfield(
+                              controller: prop.todoDescTextController,
+                              focusNode: prop.todoDescFocusNode,
+                              hintText: "Some Todo Description",
+                              onChange: (value) => _onChangeTextField(
+                                todoBlocContext: todoBlocContext,
+                                eventUpdate: UpdateDesc(
+                                  todoDesc: prop.todoDescTextController.text,
+                                ),
+                                stateFieldError:
+                                    todoBlocState.todoRequirement.descIsError,
+                                eventValidation: TodoValidation(
+                                  todoRequirement: TodoRequirement(
+                                    titleIsError: todoBlocState
+                                        .todoRequirement.titleIsError,
+                                    descIsError: false,
+                                  ),
+                                ),
+                              ),
+                              errorText:
+                                  todoBlocState.todoRequirement.descIsError
+                                      ? "description can't be empty"
+                                      : null,
+                            ),
+                          ),
+                          CustomTextfieldDatetime(
+                            controller: prop.todoScheduledTextController,
+                            focusNode: prop.todoScheduledFocusNode,
+                            hintText: "Scheduled Notification (optional)",
+                            onChange: (_) {},
                           ),
                           CustomButton(
                             onPressed: () => _validateSubmitedTodo(
                               todo: Todo(
                                 id: previewNewTodo.id,
-                                title: _todoTitleTextController.text,
-                                desc: _todoDescTextController.text,
+                                title: prop.todoTitleTextController.text,
+                                desc: prop.todoDescTextController.text,
                                 check: previewNewTodo.check,
+                                scheduledTime:
+                                    prop.todoScheduledTextController.text,
                               ),
                               todoBlocContext: todoBlocContext,
                               todoListBlocContext: todoListBlocContext,
                               settingBlocState: settingBlocState,
                               widgetContext: context,
                               listKey: listKey,
+                              todoTitleTextController:
+                                  prop.todoTitleTextController,
+                              todoDescTextController:
+                                  prop.todoDescTextController,
                             ),
                             buttonText: settingBlocState.isSettingMode
                                 ? "Update The Todo!"
@@ -190,10 +259,12 @@ void _validateSubmitedTodo({
   required SettingState settingBlocState,
   required BuildContext widgetContext,
   required GlobalKey<AnimatedListState> listKey,
+  required TextEditingController todoTitleTextController,
+  required TextEditingController todoDescTextController,
 }) async {
   TodoRequirement requirement = TodoRequirement(
-    titleIsError: _todoTitleTextController.text.isEmpty,
-    descIsError: _todoDescTextController.text.isEmpty,
+    titleIsError: todoTitleTextController.text.isEmpty,
+    descIsError: todoDescTextController.text.isEmpty,
   );
   final eventValidation = TodoValidation(todoRequirement: requirement);
   todoBlocContext.read<TodoBloc>().add(eventValidation);
@@ -210,14 +281,40 @@ void _validateSubmitedTodo({
     todoListBlocContext.read<TodoListBloc>().add(
           UpdateTodoListEvent(todo: todo),
         );
+    // Update Schedule Notification
+    if (todo.scheduledTime != null && todo.scheduledTime!.isNotEmpty) {
+      // Update Schedule Notification Where id
+      LocalNotificationHelper.updateScheduledNotification(
+        id: todo.id,
+        title: todo.title,
+        body: todo.desc,
+        tzDateScheduled: timezone.TZDateTime.from(
+          DateTimeFormatter.formatToDateTime(dateTimeStr: todo.scheduledTime!),
+          timezone.local,
+        ),
+      );
+    }
   } else {
     // Add Todo -> SQLFlite
     await TodoRepository().addTodo(todo: todo);
-    // Update Add State
+    // Add State
     if (!todoListBlocContext.mounted) return;
     todoListBlocContext.read<TodoListBloc>().add(
           AddTodoListEvent(todo: todo),
         );
+    // Add Schedule Notification (if any)
+    if (todo.scheduledTime != null && todo.scheduledTime!.isNotEmpty) {
+      // Add Schedule Notification
+      LocalNotificationHelper.showScheduledNotification(
+        id: todo.id,
+        title: todo.title,
+        body: todo.desc,
+        tzDateScheduled: timezone.TZDateTime.from(
+          DateTimeFormatter.formatToDateTime(dateTimeStr: todo.scheduledTime!),
+          timezone.local,
+        ),
+      );
+    }
     // Animation insertItem
     if (listKey.currentState != null) {
       listKey.currentState!.insertItem(0);
@@ -232,16 +329,16 @@ void _validateSubmitedTodo({
         ),
       );
   widgetContext.pop();
-  _todoTitleTextController.clear();
+  todoTitleTextController.clear();
   todoBlocContext.read<TodoBloc>().add(
         UpdateTitle(
-          todoTitle: _todoTitleTextController.text,
+          todoTitle: todoTitleTextController.text,
         ),
       );
-  _todoDescTextController.clear();
+  todoDescTextController.clear();
   todoBlocContext.read<TodoBloc>().add(
         UpdateDesc(
-          todoDesc: _todoDescTextController.text,
+          todoDesc: todoDescTextController.text,
         ),
       );
 }

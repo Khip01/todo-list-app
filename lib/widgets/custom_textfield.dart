@@ -1,53 +1,106 @@
 import 'package:flutter/material.dart';
 import 'package:todo_list_app/utils/style_util.dart';
 
-class CustomTextfield extends StatelessWidget {
+class CustomTextfield extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
   final Function(String value) onChange;
   final String? errorText;
+  final bool? readOnly;
+  final InputBorder? customBorder;
+  final InputBorder? customFocusedBorder;
+  final FocusNode? focusNode;
+  final Function(bool value)? onFocus;
 
   const CustomTextfield({
     required this.controller,
     required this.hintText,
     required this.onChange,
-    required this.errorText,
+    this.errorText,
+    this.readOnly,
+    this.customBorder,
+    this.customFocusedBorder,
+    this.focusNode,
+    this.onFocus,
     super.key,
   });
+
+  @override
+  State<CustomTextfield> createState() => _CustomTextfieldState();
+}
+
+class _CustomTextfieldState extends State<CustomTextfield> {
+  late FocusNode? _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = widget.focusNode;
+    if (widget.focusNode != null) {
+      _focusNode!.addListener(() {
+        if (widget.onFocus != null) {
+          widget.onFocus!(_focusNode!.hasFocus);
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    if (widget.focusNode != null) {
+      _focusNode!.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: TextField(
+        focusNode: _focusNode,
+        readOnly: widget.readOnly ?? false,
         maxLines: 1,
         cursorColor: StyleUtil.c_97,
-        controller: controller,
+        controller: widget.controller,
         style: StyleUtil.text_xl_Regular.copyWith(
           color: StyleUtil.c_200,
         ),
         decoration: InputDecoration(
-          hintText: hintText,
+          // suffix: GestureDetector(
+          //   onTap: () => widget.controller.clear(),
+          //   child: SizedBox(
+          //     height: 40,
+          //     width: 40,
+          //     child: const Icon(
+          //       Icons.cancel_outlined,
+          //       color: StyleUtil.c_delete_inactive,
+          //     ),
+          //   ),
+          // ),
+          hintText: widget.hintText,
           hintStyle: StyleUtil.text_xl_Regular.copyWith(
             color: StyleUtil.c_89,
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 25),
-          border: OutlineInputBorder(
-            borderSide: const BorderSide(
-              width: 1,
-            ),
-            borderRadius: BorderRadius.circular(18),
-          ),
-          errorText: errorText,
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(
-              width: 1,
-              color: StyleUtil.c_97,
-            ),
-            borderRadius: BorderRadius.circular(18),
-          ),
+          border: widget.customBorder ??
+              OutlineInputBorder(
+                borderSide: const BorderSide(
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(18),
+              ),
+          errorText: widget.errorText,
+          focusedBorder: widget.customFocusedBorder ??
+              OutlineInputBorder(
+                borderSide: const BorderSide(
+                  width: 1,
+                  color: StyleUtil.c_97,
+                ),
+                borderRadius: BorderRadius.circular(18),
+              ),
         ),
-        onChanged: onChange,
+        onChanged: widget.onChange,
       ),
     );
   }
