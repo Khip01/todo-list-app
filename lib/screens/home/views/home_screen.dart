@@ -28,7 +28,7 @@ class HomeScreen extends StatelessWidget {
     context.read<TodoListBloc>().add(LoadTodoList());
 
     return Scaffold(
-      backgroundColor: StyleUtil.c_24,
+      backgroundColor: StyleUtil.c24,
       body: SafeArea(
         child: BlocBuilder<SettingBloc, SettingState>(
           builder: (settingBlocContext, settingBlocState) {
@@ -65,8 +65,8 @@ class HomeScreen extends StatelessWidget {
                           begin: Alignment.bottomCenter,
                           end: Alignment.topCenter,
                           colors: [
-                            StyleUtil.c_16.withOpacity(1),
-                            StyleUtil.c_16.withOpacity(0),
+                            StyleUtil.c16.withOpacity(1),
+                            StyleUtil.c16.withOpacity(0),
                           ],
                           stops: const [
                             .7,
@@ -111,14 +111,14 @@ class HomeScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(50),
               ),
-              overlayColor: StyleUtil.c_245,
-              backgroundColor: StyleUtil.c_97,
-              shadowColor: StyleUtil.c_97,
+              overlayColor: StyleUtil.c245,
+              backgroundColor: StyleUtil.c97,
+              shadowColor: StyleUtil.c97,
               alignment: Alignment.center,
             ),
             child: const Icon(
               Icons.add,
-              color: StyleUtil.c_255,
+              color: StyleUtil.c255,
               size: 18,
             ),
           ),
@@ -155,8 +155,8 @@ class CustomAppBar extends StatelessWidget {
                     ),
                     Text(
                       "Todolist",
-                      style: StyleUtil.text_xl_Medium.copyWith(
-                        color: StyleUtil.c_245,
+                      style: StyleUtil.textXLMedium.copyWith(
+                        color: StyleUtil.c245,
                       ),
                     ),
                   ],
@@ -195,7 +195,7 @@ class ContentBody extends StatelessWidget {
           topLeft: Radius.circular(28),
           topRight: Radius.circular(28),
         ),
-        color: StyleUtil.c_16,
+        color: StyleUtil.c16,
       ),
       child: BlocBuilder<TodoListBloc, TodoListState>(
         builder: (todoListBlocContext, todoListBlocState) {
@@ -205,7 +205,7 @@ class ContentBody extends StatelessWidget {
               child: Text(
                 "Empty",
                 style:
-                    StyleUtil.text_xl_Medium.copyWith(color: StyleUtil.c_245),
+                    StyleUtil.textXLMedium.copyWith(color: StyleUtil.c245),
               ),
             );
           } else if (todoListBlocState is TodoListLoaded &&
@@ -278,8 +278,8 @@ class ContentBody extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      StyleUtil.c_16.withOpacity(1),
-                      StyleUtil.c_16.withOpacity(0),
+                      StyleUtil.c16.withOpacity(1),
+                      StyleUtil.c16.withOpacity(0),
                     ],
                   ),
                 ),
@@ -352,7 +352,7 @@ class ContentBody extends StatelessWidget {
                             alignment: Alignment.centerRight,
                             child: Icon(
                               Icons.delete_outline,
-                              color: StyleUtil.c_200,
+                              color: StyleUtil.c200,
                             ),
                           ),
                         );
@@ -396,7 +396,7 @@ class ContentBody extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          backgroundColor: StyleUtil.c_13,
+          backgroundColor: StyleUtil.c13,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(28),
           ),
@@ -411,14 +411,14 @@ class ContentBody extends StatelessWidget {
                     if (todo.check)
                       TextSpan(
                         text: "[COMPLETED] ",
-                        style: StyleUtil.text_xl_Medium.copyWith(
-                          color: StyleUtil.c_255,
+                        style: StyleUtil.textXLMedium.copyWith(
+                          color: StyleUtil.c255,
                         ),
                       ),
                     TextSpan(
                       text: todo.title,
-                      style: StyleUtil.text_xl_Regular.copyWith(
-                        color: StyleUtil.c_200,
+                      style: StyleUtil.textXLRegular.copyWith(
+                        color: StyleUtil.c200,
                       ),
                     ),
                   ],
@@ -440,8 +440,8 @@ class ContentBody extends StatelessWidget {
                     children: [
                       Text(
                         todo.desc,
-                        style: StyleUtil.text_Base_Regular.copyWith(
-                          color: StyleUtil.c_200,
+                        style: StyleUtil.textBaseRegular.copyWith(
+                          color: StyleUtil.c200,
                         ),
                       ),
                     ],
@@ -461,15 +461,15 @@ class ContentBody extends StatelessWidget {
                           const SpacingWidget(vertical: 20),
                           Text(
                             "Scheduled on ",
-                            style: StyleUtil.text_Base_Medium.copyWith(
-                              color: StyleUtil.c_255,
+                            style: StyleUtil.textBaseMedium.copyWith(
+                              color: StyleUtil.c255,
                             ),
                           ),
                           const SpacingWidget(vertical: 5),
                           Text(
                             todo.scheduledTime!,
-                            style: StyleUtil.text_Base_Regular.copyWith(
-                              color: StyleUtil.c_200,
+                            style: StyleUtil.textBaseRegular.copyWith(
+                              color: StyleUtil.c200,
                             ),
                           ),
                         ],
@@ -540,8 +540,8 @@ class _CustomAnimatedSettingIconState extends State<CustomAnimatedSettingIcon>
           Icons.settings,
           size: 24,
           color: widget.settingBlocState.isSettingMode
-              ? StyleUtil.c_97
-              : StyleUtil.c_73,
+              ? StyleUtil.c97
+              : StyleUtil.c73,
         ),
       ),
     );

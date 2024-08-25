@@ -1,12 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:timezone/data/latest.dart' as timezoneLatest;
+import 'package:timezone/data/latest.dart' as timezone_latest;
 import 'package:timezone/timezone.dart' as timezone;
-import 'package:todo_list_app/data/repository/todo_repository.dart';
-
-import '../../models/todo.dart';
 
 class LocalNotificationHelper {
   static final FlutterLocalNotificationsPlugin
@@ -15,7 +10,7 @@ class LocalNotificationHelper {
   // init FlutterLocalNotification
   static Future<void> initLocalNotification() async {
     // init local timezone
-    timezoneLatest.initializeTimeZones();
+    timezone_latest.initializeTimeZones();
     // init notification
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
@@ -70,12 +65,13 @@ class LocalNotificationHelper {
         );
   }
 
+  // Get Condition Notification Permission
   static Future<bool> isNotificationPermissionGranted() async {
     final status = await Permission.notification.status;
     return status.isGranted;
   }
 
-  // show scheduled notification
+  // Show Scheduled Notification
   static Future<void> showScheduledNotification({
     required String id,
     required String title,
@@ -133,53 +129,6 @@ class LocalNotificationHelper {
       tzDateScheduled: tzDateScheduled,
     );
   }
-
-  // // show periodic time notification - IDK When But Not now
-  // static Future<void> showPeriodicNotification({
-  //   required String id,
-  //   required String title,
-  //   required String body,
-  //   required DateTime startTime,
-  // }) async {
-  //   final AndroidNotificationDetails androidNotificationDetails =
-  //       AndroidNotificationDetails(
-  //     id, // channel id
-  //     title, // channel name
-  //     channelDescription: body,
-  //     importance: Importance.max,
-  //     priority: Priority.high,
-  //     ticker: 'ticker',
-  //   );
-  //   final DarwinNotificationDetails iosNotificationDetails =
-  //       DarwinNotificationDetails(
-  //     sound: 'default',
-  //     badgeNumber: null,
-  //     subtitle: body,
-  //     threadIdentifier: 'todo_list_thread',
-  //     categoryIdentifier: 'todo_list_category',
-  //   );
-  //   final NotificationDetails notificationDetails = NotificationDetails(
-  //     android: androidNotificationDetails,
-  //     iOS: iosNotificationDetails,
-  //   );
-  //   // Prep Scheduled Date
-  //   final timezone.TZDateTime scheduledDate = timezone.TZDateTime.from(
-  //     startTime,
-  //     timezone.local,
-  //   );
-  //   // Schedule the notification to repeat periodically
-  //   await _flutterLocalNotificationsPlugin.zonedSchedule(
-  //     int.parse(id),
-  //     title,
-  //     body,
-  //     scheduledDate,
-  //     notificationDetails,
-  //     androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-  //     uiLocalNotificationDateInterpretation:
-  //         UILocalNotificationDateInterpretation.absoluteTime,
-  //     matchDateTimeComponents: DateTimeComponents.time,
-  //   );
-  // }
 
   // close specific notification
   static Future<void> closeSpecificNotification({

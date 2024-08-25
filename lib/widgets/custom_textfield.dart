@@ -61,10 +61,10 @@ class _CustomTextfieldState extends State<CustomTextfield> {
         focusNode: _focusNode,
         readOnly: widget.readOnly ?? false,
         maxLines: 1,
-        cursorColor: StyleUtil.c_97,
+        cursorColor: StyleUtil.c97,
         controller: widget.controller,
-        style: StyleUtil.text_xl_Regular.copyWith(
-          color: StyleUtil.c_200,
+        style: StyleUtil.textXLRegular.copyWith(
+          color: StyleUtil.c200,
         ),
         decoration: InputDecoration(
           // suffix: GestureDetector(
@@ -79,8 +79,8 @@ class _CustomTextfieldState extends State<CustomTextfield> {
           //   ),
           // ),
           hintText: widget.hintText,
-          hintStyle: StyleUtil.text_xl_Regular.copyWith(
-            color: StyleUtil.c_89,
+          hintStyle: StyleUtil.textXLRegular.copyWith(
+            color: StyleUtil.c89,
           ),
           contentPadding: const EdgeInsets.symmetric(horizontal: 25),
           border: widget.customBorder ??
@@ -95,7 +95,7 @@ class _CustomTextfieldState extends State<CustomTextfield> {
               OutlineInputBorder(
                 borderSide: const BorderSide(
                   width: 1,
-                  color: StyleUtil.c_97,
+                  color: StyleUtil.c97,
                 ),
                 borderRadius: BorderRadius.circular(18),
               ),

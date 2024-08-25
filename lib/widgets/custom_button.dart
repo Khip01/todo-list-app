@@ -20,7 +20,7 @@ class CustomButton extends StatelessWidget {
         height: 48,
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: StyleUtil.c_97,
+            backgroundColor: StyleUtil.c97,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(18),
             ),
@@ -28,8 +28,8 @@ class CustomButton extends StatelessWidget {
           onPressed: onPressed,
           child: Text(
             buttonText,
-            style: StyleUtil.text_xl_Medium.copyWith(
-              color: StyleUtil.c_255,
+            style: StyleUtil.textXLMedium.copyWith(
+              color: StyleUtil.c255,
             ),
           ),
         ),

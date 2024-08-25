@@ -40,17 +40,17 @@ class CustomCheckbox extends StatelessWidget {
       height: 32,
       width: 32,
       decoration: BoxDecoration(
-        color: isChecked ? StyleUtil.c_97 : Colors.transparent,
+        color: isChecked ? StyleUtil.c97 : Colors.transparent,
         borderRadius: BorderRadius.circular(50),
         border: Border.all(
-          color: StyleUtil.c_97,
+          color: StyleUtil.c97,
           width: 1,
         ),
       ),
       child: isChecked
           ? const Icon(
               Icons.check,
-              color: StyleUtil.c_255,
+              color: StyleUtil.c255,
               size: 14,
             )
           : const SizedBox(),

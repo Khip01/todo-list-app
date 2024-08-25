@@ -13,7 +13,7 @@ class CustomDragIcon extends StatelessWidget {
         width: 40,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            color: StyleUtil.c_200,
+            color: StyleUtil.c200,
             borderRadius: BorderRadius.circular(20),
           ),
         ),

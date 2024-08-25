@@ -37,7 +37,7 @@ class ListTileItem extends StatelessWidget {
             width: double.maxFinite,
             padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
             decoration: BoxDecoration(
-              color: StyleUtil.c_13,
+              color: StyleUtil.c13,
               borderRadius: BorderRadius.circular(28),
             ),
             child: Row(
@@ -77,16 +77,16 @@ class ListTileItem extends StatelessWidget {
                             todo.title,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: StyleUtil.text_xl_Medium.copyWith(
+                            style: StyleUtil.textXLMedium.copyWith(
                               color: isTodoChecked(
-                                StyleUtil.c_200,
-                                StyleUtil.c_255,
+                                StyleUtil.c200,
+                                StyleUtil.c255,
                               ),
                               decoration: isTodoChecked(
                                 TextDecoration.lineThrough,
                                 null,
                               ),
-                              decorationColor: StyleUtil.c_255,
+                              decorationColor: StyleUtil.c255,
                               decorationThickness: 2,
                             ),
                           ),
@@ -94,16 +94,16 @@ class ListTileItem extends StatelessWidget {
                             todo.desc,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: StyleUtil.text_Base_Regular.copyWith(
+                            style: StyleUtil.textBaseRegular.copyWith(
                               color: isTodoChecked(
-                                StyleUtil.c_200,
-                                StyleUtil.c_200,
+                                StyleUtil.c200,
+                                StyleUtil.c200,
                               ),
                               decoration: isTodoChecked(
                                 TextDecoration.lineThrough,
                                 null,
                               ),
-                              decorationColor: StyleUtil.c_255,
+                              decorationColor: StyleUtil.c255,
                               decorationThickness: 2,
                             ),
                           ),

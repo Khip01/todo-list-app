@@ -69,7 +69,7 @@ class _TextFieldSectionWithClearButtonState
                           width: 48,
                           child: const Icon(
                             Icons.cancel_rounded,
-                            color: StyleUtil.c_delete_inactive,
+                            color: StyleUtil.cDeleteInactive,
                           ),
                         ),
                       ),

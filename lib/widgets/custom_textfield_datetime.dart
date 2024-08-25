@@ -63,7 +63,7 @@ class _CustomTextfieldDatetimeState extends State<CustomTextfieldDatetime> {
               customFocusedBorder: const OutlineInputBorder(
                 borderSide: BorderSide(
                   width: 1,
-                  color: StyleUtil.c_97,
+                  color: StyleUtil.c97,
                 ),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(18),
@@ -73,7 +73,7 @@ class _CustomTextfieldDatetimeState extends State<CustomTextfieldDatetime> {
               focusNode: textFieldFocusNode,
               onFocus: (isFocus) => setState(() {
                 if (isFocus) {
-                  backgroundColor = StyleUtil.c_97;
+                  backgroundColor = StyleUtil.c97;
                 } else {
                   backgroundColor = Color.fromARGB(255, 126, 126, 126);
                 }
@@ -120,7 +120,7 @@ class CustomDateTimeButton extends StatelessWidget {
             topRight: Radius.circular(18),
             bottomRight: Radius.circular(18),
           ),
-          overlayColor: WidgetStatePropertyAll(StyleUtil.c_200.withOpacity(.5)),
+          overlayColor: WidgetStatePropertyAll(StyleUtil.c200.withOpacity(.5)),
           onTap: () async {
             // Get Permission First
             await LocalNotificationHelper.getLocalNotificationPermission();
@@ -133,15 +133,15 @@ class CustomDateTimeButton extends StatelessWidget {
               theme: picker.DatePickerTheme(
                 containerHeight: 310,
                 itemHeight: 38,
-                cancelStyle: StyleUtil.text_xl_Medium.copyWith(
-                  color: StyleUtil.c_200,
+                cancelStyle: StyleUtil.textXLMedium.copyWith(
+                  color: StyleUtil.c200,
                 ),
-                doneStyle: StyleUtil.text_xl_Medium.copyWith(
-                  color: StyleUtil.c_97,
+                doneStyle: StyleUtil.textXLMedium.copyWith(
+                  color: StyleUtil.c97,
                 ),
-                backgroundColor: StyleUtil.c_13,
-                itemStyle: StyleUtil.text_xl_Medium.copyWith(
-                  color: StyleUtil.c_255,
+                backgroundColor: StyleUtil.c13,
+                itemStyle: StyleUtil.textXLMedium.copyWith(
+                  color: StyleUtil.c255,
                 ),
               ),
               showTitleActions: true,
@@ -168,7 +168,7 @@ class CustomDateTimeButton extends StatelessWidget {
             child: Center(
               child: Icon(
                 Icons.notification_add,
-                color: StyleUtil.c_13,
+                color: StyleUtil.c13,
               ),
             ),
           ),

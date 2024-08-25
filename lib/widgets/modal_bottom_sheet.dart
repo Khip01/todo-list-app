@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:todo_list_app/data/repository/todo_repository.dart';
@@ -60,7 +58,7 @@ void showCustomModalBottomSheet({
     clipBehavior: Clip.antiAlias,
     context: context,
     isScrollControlled: true,
-    backgroundColor: StyleUtil.c_16,
+    backgroundColor: StyleUtil.c16,
     builder: (context) {
       final keyboardBottomPadding = MediaQuery.of(context).viewInsets.bottom;
 

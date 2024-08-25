@@ -56,8 +56,8 @@ class _PressableDeleteButtonState extends State<PressableDeleteButton>
       });
 
     _animationColor = ColorTween(
-      begin: StyleUtil.c_delete_inactive,
-      end: StyleUtil.c_delete_active,
+      begin: StyleUtil.cDeleteInactive,
+      end: StyleUtil.cDeleteActive,
     ).animate(_animationColorController);
   }
 

@@ -35,7 +35,7 @@ class CustomEditIcon extends StatelessWidget {
               },
               child: const Icon(
                 Icons.edit,
-                color: StyleUtil.c_255,
+                color: StyleUtil.c255,
               ),
             ),
           ),
