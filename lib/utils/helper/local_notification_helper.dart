@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as timezone_latest;
@@ -41,28 +43,43 @@ class LocalNotificationHelper {
 
   static Future<void> getLocalNotificationPermission() async {
     // for Android 13+ Permission Handler
-    // if (await Permission.notification.isDenied) { // can be customized
-    //   await Permission.notification.request();
-    // }
-    // for Android 13+ Permission Handler
     if (await isNotificationPermissionGranted()) {
       return;
     }
 
-    await _flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();
+    if (Platform.isAndroid) {
+      const AndroidNotificationChannel androidNotificationChannel =
+          AndroidNotificationChannel(
+        "task_scheduled_notification_channel", // Channel ID
+        "Task Scheduled Notification", // Channel Name
+        // description: 'Channel for task scheduled notifications', // Channel Description
+        importance: Importance.max,
+      );
 
-    // for IOS
-    await _flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin>()
-        ?.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
+      await _flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.requestNotificationsPermission()
+          .then(
+        (_) {
+          // init/Create Notificaion Channel
+          _flutterLocalNotificationsPlugin
+              .resolvePlatformSpecificImplementation<
+                  AndroidFlutterLocalNotificationsPlugin>()
+              ?.createNotificationChannel(androidNotificationChannel);
+        },
+      );
+    } else if (Platform.isIOS || Platform.isMacOS) {
+      // for IOS
+      await _flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+    }
   }
 
   // Get Condition Notification Permission
@@ -78,11 +95,11 @@ class LocalNotificationHelper {
     required String body,
     required timezone.TZDateTime tzDateScheduled,
   }) async {
-    final AndroidNotificationDetails androidNotificationDetails =
+    const AndroidNotificationDetails androidNotificationDetails =
         AndroidNotificationDetails(
-      id, // channel id
-      title, // channel name
-      channelDescription: body,
+      "task_scheduled_notification_channel", // channel id
+      "Task Scheduled Notification", // channel name
+      // channelDescription: 'Channel for task scheduled notifications', // channel description
       importance: Importance.max,
       priority: Priority.high,
       ticker: 'ticker',
@@ -108,7 +125,7 @@ class LocalNotificationHelper {
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time
+      matchDateTimeComponents: DateTimeComponents.time,
     );
   }
 
