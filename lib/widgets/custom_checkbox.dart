@@ -36,24 +36,30 @@ class CustomCheckbox extends StatelessWidget {
   }
 
   Widget _checkbox(bool isChecked) {
-    return Container(
-      height: 32,
-      width: 32,
-      decoration: BoxDecoration(
-        color: isChecked ? StyleUtil.c97 : Colors.transparent,
-        borderRadius: BorderRadius.circular(50),
-        border: Border.all(
-          color: StyleUtil.c97,
-          width: 1,
+    return SizedBox(
+      width: 80,
+      height: 70,
+      child: Center(
+        child: Container(
+          height: 32,
+          width: 32,
+          decoration: BoxDecoration(
+            color: isChecked ? StyleUtil.c97 : Colors.transparent,
+            borderRadius: BorderRadius.circular(50),
+            border: Border.all(
+              color: StyleUtil.c97,
+              width: 1,
+            ),
+          ),
+          child: isChecked
+              ? const Icon(
+                  Icons.check,
+                  color: StyleUtil.c255,
+                  size: 14,
+                )
+              : const SizedBox(),
         ),
       ),
-      child: isChecked
-          ? const Icon(
-              Icons.check,
-              color: StyleUtil.c255,
-              size: 14,
-            )
-          : const SizedBox(),
     );
   }
 }

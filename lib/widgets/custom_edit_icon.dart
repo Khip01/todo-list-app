@@ -20,20 +20,28 @@ class CustomEditIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SettingBloc, SettingState>(
       builder: (todoBlocContext, todoBlocState) {
-        return SizedBox(
-          height: 32,
-          width: 32,
-          child: Center(
-            child: GestureDetector(
-              onTap: () {
-                showCustomModalBottomSheet(
-                  context: context,
-                  editedTodo: editedTodo,
-                  todoBlocContext: todoBlocContext,
-                  listKey: listKey,
-                );
-              },
-              child: const Icon(
+        return InkWell(
+          onTap: () {
+            showCustomModalBottomSheet(
+              context: context,
+              editedTodo: editedTodo,
+              todoBlocContext: todoBlocContext,
+              listKey: listKey,
+            );
+          },
+          child: const DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(28),
+                bottomLeft: Radius.circular(28),
+              ),
+            ),
+            child: SizedBox(
+              height: 70,
+              width: 80,
+              // height: 35,
+              // width: 35,
+              child: Icon(
                 Icons.edit,
                 color: StyleUtil.c255,
               ),

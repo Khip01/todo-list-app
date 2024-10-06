@@ -35,7 +35,7 @@ class ListTileItem extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 20),
             height: 70,
             width: double.maxFinite,
-            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+            // padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 15),
             decoration: BoxDecoration(
               color: StyleUtil.c13,
               borderRadius: BorderRadius.circular(28),
@@ -60,7 +60,7 @@ class ListTileItem extends StatelessWidget {
                     listKey: listKey,
                   ),
                 ),
-                const SpacingWidget(horizontal: 22),
+                // const SpacingWidget(horizontal: 22),
                 // Body
                 Flexible(
                   fit: FlexFit.tight,
@@ -69,6 +69,7 @@ class ListTileItem extends StatelessWidget {
                     child: Container(
                       color: Colors.transparent,
                       width: double.maxFinite,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,

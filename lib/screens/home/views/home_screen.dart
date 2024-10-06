@@ -525,7 +525,8 @@ class _CustomAnimatedSettingIconState extends State<CustomAnimatedSettingIcon>
   Widget build(BuildContext context) {
     return RotationTransition(
       turns: _animation,
-      child: GestureDetector(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(50),
         onTap: () {
           widget.settingBlocContext.read<SettingBloc>().add(
                 UpdateSettingEvent(isSettingMode: !widget.isSettingMode),
@@ -536,12 +537,16 @@ class _CustomAnimatedSettingIconState extends State<CustomAnimatedSettingIcon>
             _controller.reverse();
           }
         },
-        child: Icon(
-          Icons.settings,
-          size: 24,
-          color: widget.settingBlocState.isSettingMode
-              ? StyleUtil.c97
-              : StyleUtil.c73,
+        child: SizedBox(
+          height: 48,
+          width: 48,
+          child: Icon(
+            Icons.settings,
+            size: 24,
+            color: widget.settingBlocState.isSettingMode
+                ? StyleUtil.c97
+                : StyleUtil.c73,
+          ),
         ),
       ),
     );
