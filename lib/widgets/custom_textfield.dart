@@ -5,6 +5,7 @@ class CustomTextfield extends StatefulWidget {
   final TextEditingController controller;
   final String hintText;
   final Function(String value) onChange;
+  final int? customMaxLine;
   final String? errorText;
   final bool? readOnly;
   final InputBorder? customBorder;
@@ -16,6 +17,7 @@ class CustomTextfield extends StatefulWidget {
     required this.controller,
     required this.hintText,
     required this.onChange,
+    this.customMaxLine,
     this.errorText,
     this.readOnly,
     this.customBorder,
@@ -60,7 +62,7 @@ class _CustomTextfieldState extends State<CustomTextfield> {
       child: TextField(
         focusNode: _focusNode,
         readOnly: widget.readOnly ?? false,
-        maxLines: 1,
+        maxLines: widget.customMaxLine ?? 1,
         cursorColor: StyleUtil.c97,
         controller: widget.controller,
         style: StyleUtil.textXLRegular.copyWith(
@@ -82,7 +84,7 @@ class _CustomTextfieldState extends State<CustomTextfield> {
           hintStyle: StyleUtil.textXLRegular.copyWith(
             color: StyleUtil.c89,
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 25),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12.5),
           border: widget.customBorder ??
               OutlineInputBorder(
                 borderSide: const BorderSide(

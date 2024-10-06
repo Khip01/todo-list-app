@@ -169,6 +169,7 @@ void showCustomModalBottomSheet({
                               controller: prop.todoDescTextController,
                               focusNode: prop.todoDescFocusNode,
                               hintText: "Some Todo Description",
+                              customMaxLine: 10,
                               onChange: (value) => _onChangeTextField(
                                 todoBlocContext: todoBlocContext,
                                 eventUpdate: UpdateDesc(
