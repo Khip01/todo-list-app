@@ -9,7 +9,7 @@ Language : English
 ---
 
 ## 📜 Description:
-Simple approach to understanding Bloc Provider
+Simple approach to understanding Bloc Provider and SQLite as Embedded Database
 
 ## 💻 My Development Environment 
 - OS | Windows 11
