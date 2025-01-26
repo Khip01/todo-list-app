@@ -14,6 +14,8 @@ class StyleUtil {
   static const Color c255 = Color.fromARGB(255, 255, 255, 255);
   static const Color cDeleteInactive = Color.fromARGB(255, 79, 0, 0);
   static const Color cDeleteActive = Color.fromARGB(255, 183, 0, 0);
+  static const Color cSuccessActive = Color.fromARGB(255, 51, 134, 51);
+
 
   // Font Style
 

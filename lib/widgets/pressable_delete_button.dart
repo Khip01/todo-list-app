@@ -116,8 +116,8 @@ class _PressableDeleteButtonState extends State<PressableDeleteButton>
                     begin: Alignment.centerRight,
                     end: Alignment.centerLeft,
                     colors: [
-                      _animationColor.value!.withOpacity(.7),
-                      _animationColor.value!.withOpacity(_animationSize.value / 1.67),
+                      _animationColor.value!.withValues(alpha: .7),
+                      _animationColor.value!.withValues(alpha: _animationSize.value / 1.67),
                     ],
                   ),
                 ),

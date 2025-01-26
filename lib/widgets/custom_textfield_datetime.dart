@@ -2,23 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:todo_list_app/utils/helper/datetime_formatter.dart';
 import 'package:todo_list_app/utils/style_util.dart';
 import 'package:todo_list_app/widgets/textfield_section_clear_button.dart';
-import '../utils/helper/local_notification_helper.dart';
 import 'custom_textfield.dart';
 import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
-    as picker;
+as picker;
 
 class CustomTextfieldDatetime extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final String hintText;
-  final Function(String value) onChange;
+  final Function(String value) textOnRemoveChange;
+  final Function(DateTime date) dateButtonOnConfirm;
 
   const CustomTextfieldDatetime({
     super.key,
     required this.controller,
     required this.focusNode,
     required this.hintText,
-    required this.onChange,
+    required this.textOnRemoveChange,
+    required this.dateButtonOnConfirm,
   });
 
   @override
@@ -28,6 +29,7 @@ class CustomTextfieldDatetime extends StatefulWidget {
 
 class _CustomTextfieldDatetimeState extends State<CustomTextfieldDatetime> {
   Color backgroundColor = Color.fromARGB(255, 126, 126, 126);
+  double borderRadiusVal = 6;
   late FocusNode textFieldFocusNode;
 
   @override
@@ -45,19 +47,20 @@ class _CustomTextfieldDatetimeState extends State<CustomTextfieldDatetime> {
           child: TextFieldSectionWithClearButton(
             controller: widget.controller,
             focusNode: widget.focusNode,
-            textOnRemove: widget.onChange,
+            textOnRemove: widget.textOnRemoveChange,
             textFieldChild: CustomTextfield(
               controller: widget.controller,
               hintText: widget.hintText,
-              onChange: widget.onChange,
+              onChange: (_) {},
               readOnly: true,
               customBorder: const OutlineInputBorder(
                 borderSide: BorderSide(
-                  width: 1,
+                  width: 0.3,
+                  color: StyleUtil.c89,
                 ),
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(18),
-                  bottomLeft: Radius.circular(18),
+                  topLeft: Radius.circular(6),
+                  bottomLeft: Radius.circular(6),
                 ),
               ),
               customFocusedBorder: const OutlineInputBorder(
@@ -71,20 +74,24 @@ class _CustomTextfieldDatetimeState extends State<CustomTextfieldDatetime> {
                 ),
               ),
               focusNode: textFieldFocusNode,
-              onFocus: (isFocus) => setState(() {
-                if (isFocus) {
-                  backgroundColor = StyleUtil.c97;
-                } else {
-                  backgroundColor = Color.fromARGB(255, 126, 126, 126);
-                }
-              }),
+              onFocus: (isFocus) =>
+                  setState(() {
+                    if (isFocus) {
+                      backgroundColor = StyleUtil.c97;
+                      borderRadiusVal = 18;
+                    } else {
+                      backgroundColor = Color.fromARGB(255, 126, 126, 126);
+                      borderRadiusVal = 6;
+                    }
+                  }),
             ),
           ),
         ),
         CustomDateTimeButton(
           backgroundColor: backgroundColor,
+          borderRadiusVal: borderRadiusVal,
           controller: widget.controller,
-          textFieldFocusNode: textFieldFocusNode,
+          dateButtonOnConfirm: widget.dateButtonOnConfirm,
         ),
       ],
     );
@@ -93,14 +100,16 @@ class _CustomTextfieldDatetimeState extends State<CustomTextfieldDatetime> {
 
 class CustomDateTimeButton extends StatelessWidget {
   final Color backgroundColor;
+  final double borderRadiusVal;
   final TextEditingController controller;
-  final FocusNode textFieldFocusNode;
+  final Function(DateTime date) dateButtonOnConfirm;
 
   const CustomDateTimeButton({
     super.key,
     required this.backgroundColor,
+    required this.borderRadiusVal,
     required this.controller,
-    required this.textFieldFocusNode,
+    required this.dateButtonOnConfirm,
   });
 
   @override
@@ -110,24 +119,25 @@ class CustomDateTimeButton extends StatelessWidget {
       child: Ink(
         decoration: BoxDecoration(
           color: backgroundColor,
-          borderRadius: const BorderRadius.only(
-            topRight: Radius.circular(18),
-            bottomRight: Radius.circular(18),
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(borderRadiusVal),
+            bottomRight: Radius.circular(borderRadiusVal),
           ),
         ),
         child: InkWell(
-          borderRadius: const BorderRadius.only(
-            topRight: Radius.circular(18),
-            bottomRight: Radius.circular(18),
+          borderRadius: BorderRadius.only(
+            topRight: Radius.circular(borderRadiusVal),
+            bottomRight: Radius.circular(borderRadiusVal),
           ),
-          overlayColor: WidgetStatePropertyAll(StyleUtil.c200.withOpacity(.5)),
+          overlayColor: WidgetStatePropertyAll(
+              StyleUtil.c200.withValues(alpha: .5)),
           onTap: () async {
-            // Get Permission First
-            await LocalNotificationHelper.getLocalNotificationPermission();
-            if (!await LocalNotificationHelper
-                .isNotificationPermissionGranted()) {
-              return;
-            }
+            // Get Scheduled Permission First
+            // await LocalNotificationHelper.getLocalNotificationPermission();
+            // if (!await LocalNotificationHelper
+            //     .isNotificationPermissionGranted()) {
+            //   return;
+            // }
             picker.DatePicker.showDateTimePicker(
               context,
               theme: picker.DatePickerTheme(
@@ -145,19 +155,13 @@ class CustomDateTimeButton extends StatelessWidget {
                 ),
               ),
               showTitleActions: true,
-              minTime: DateTime.now(),
+              minTime: DateTime.now().add(const Duration(minutes: 3)),
               maxTime: DateTime.now().add(const Duration(days: 360 * 2)),
               onCancel: () {},
-              onChanged: (date) {
-                // print('change $date in time zone ' +
-                //     date.timeZoneOffset.inHours.toString());
-              },
-              onConfirm: (date) {
-                textFieldFocusNode.requestFocus();
-                controller.text =
-                    DateTimeFormatter.formatToString(dateTime: date);
-              },
-              currentTime: DateTimeFormatter.dateIsTodayAndNullChecker(
+              onChanged: (_) {},
+              onConfirm: dateButtonOnConfirm,
+              currentTime: DateTimeFormatter.dateIsMinTimeAndNullChecker(
+                minTime: DateTime.now().add(const Duration(minutes: 3)),
                 dateTimeStr: controller.text,
               ),
             );
@@ -168,7 +172,7 @@ class CustomDateTimeButton extends StatelessWidget {
             child: Center(
               child: Icon(
                 Icons.notification_add,
-                color: StyleUtil.c13,
+                color: StyleUtil.c255,
               ),
             ),
           ),

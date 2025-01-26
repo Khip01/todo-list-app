@@ -84,20 +84,37 @@ class _CustomTextfieldState extends State<CustomTextfield> {
           hintStyle: StyleUtil.textXLRegular.copyWith(
             color: StyleUtil.c89,
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 25, vertical: 12.5),
-          border: widget.customBorder ??
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 25, vertical: 12.5),
+          enabledBorder: widget.customBorder ??
               OutlineInputBorder(
                 borderSide: const BorderSide(
-                  width: 1,
+                  width: 0.3,
+                  color: StyleUtil.c89,
                 ),
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(6),
               ),
+          errorBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+              width: 0.3,
+              color: StyleUtil.cDeleteActive,
+            ),
+            borderRadius: BorderRadius.circular(6),
+          ),
           errorText: widget.errorText,
           focusedBorder: widget.customFocusedBorder ??
               OutlineInputBorder(
                 borderSide: const BorderSide(
                   width: 1,
                   color: StyleUtil.c97,
+                ),
+                borderRadius: BorderRadius.circular(18),
+              ),
+          focusedErrorBorder:
+              OutlineInputBorder(
+                borderSide: const BorderSide(
+                  width: 1,
+                  color: StyleUtil.cDeleteActive,
                 ),
                 borderRadius: BorderRadius.circular(18),
               ),
