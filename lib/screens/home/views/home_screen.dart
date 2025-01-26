@@ -1,6 +1,8 @@
 import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:todo_list_app/data/repository/calendar_repository.dart';
+import 'package:todo_list_app/data/repository/event_repository.dart';
 import 'package:todo_list_app/screens/home/blocs/setting/setting_bloc.dart';
 import 'package:todo_list_app/utils/constants.dart';
 
@@ -334,27 +336,13 @@ class ContentBody extends StatelessWidget {
                           initWidth: 80,
                           maxWidth: constraints.maxWidth - 80,
                           animDuration: const Duration(milliseconds: 3000),
-                          onPressAct: () async {
-                            // Bloc
-                            await TodoRepository()
-                                .deleteTodo(id: int.parse(todo.id));
-                            if (!todoListContext.mounted) return;
-                            todoListContext.read<TodoListBloc>().add(
-                                  DeleteTodoListEvent(todo: todo),
-                                );
-                            // close the notification, if any
-                            // LocalNotificationHelper.closeSpecificNotification(
-                            //   id: int.parse(todo.id),
-                            // );
-                            // Animation Handler
-                            if (listKey.currentState != null) {
-                              _deleteAnimationListHandler(
-                                removedIndex: index,
-                                todo: todo,
-                                settingBlocState: settingBlocState,
-                              );
-                            }
-                          },
+                          onPressAct: () async => await _onPressedDeleteAct(
+                            todo: todo,
+                            widgetContext: context,
+                            removedIndexAnimation: index,
+                            settingBlocState: settingBlocState,
+                            todoListContext: todoListContext,
+                          ),
                           child: const Align(
                             alignment: Alignment.centerRight,
                             child: Icon(
@@ -370,6 +358,82 @@ class ContentBody extends StatelessWidget {
               ],
             );
           },
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onPressedDeleteAct({
+    required Todo todo,
+    required removedIndexAnimation,
+    required BuildContext widgetContext,
+    required BuildContext todoListContext,
+    required SettingState settingBlocState,
+  }) async {
+    // Bloc
+    await TodoRepository().deleteTodo(id: int.parse(todo.id));
+    if (!todoListContext.mounted) return;
+    todoListContext.read<TodoListBloc>().add(
+          DeleteTodoListEvent(todo: todo),
+        );
+    // Animation Handler
+    if (listKey.currentState != null) {
+      _deleteAnimationListHandler(
+        removedIndex: removedIndexAnimation,
+        todo: todo,
+        settingBlocState: settingBlocState,
+      );
+    }
+    // delete the event from calendar, *if any
+    if (todo.eventId != null) {
+      DeviceCalendarPlugin deviceCalendarPlugin = DeviceCalendarPlugin();
+      try {
+        String calendarId = await CalendarRepository.getOrCreateCalendarId(
+          calendarName: Constants.CALENDAR_NAME,
+          deviceCalendarPlugin: deviceCalendarPlugin,
+        );
+        bool deleteResult = await EventRepository.deleteEventFromCalendar(
+          deviceCalendarPlugin: deviceCalendarPlugin,
+          calendarId: calendarId,
+          eventId: todo.eventId,
+        );
+        if (!widgetContext.mounted) return;
+        if (deleteResult) { // success
+          _showSnackbarMessage(
+            widgetContext,
+            "ToDo deleted successfully!",
+            isError: !deleteResult,
+          );
+        } else {
+          _showSnackbarMessage(
+            widgetContext,
+            "ToDo deleted successfully, but not with calendar event",
+            isError: !deleteResult,
+          );
+        }
+      } catch (error) {
+        if (!widgetContext.mounted) return;
+        _showSnackbarMessage(
+          widgetContext,
+          error.toString(),
+          isError: true,
+        );
+        return;
+      }
+    }
+  }
+
+  void _showSnackbarMessage(BuildContext context, String msg,
+      {required bool isError}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor:
+            isError ? StyleUtil.cDeleteInactive : StyleUtil.cSuccessActive,
+        content: Text(
+          msg,
+          style: StyleUtil.textXLRegular.copyWith(
+            color: StyleUtil.c200,
+          ),
         ),
       ),
     );
