@@ -28,7 +28,7 @@ class TodoDatabase {
 
     return openDatabase(
       path,
-      version: 2,
+      version: 4,
       onCreate: _onCreateTable,
       onUpgrade: _onUpgradeTable,
     );
@@ -42,16 +42,50 @@ class TodoDatabase {
         "${TodoTable.title} ${TodoTable.titleType}, "
         "${TodoTable.desc} ${TodoTable.descType}, "
         "${TodoTable.check} ${TodoTable.checkType}, "
-        "${TodoTable.scheduledTime} ${TodoTable.scheduledTimeType}"
+        "${TodoTable.eventId} ${TodoTable.eventIdType}"
+        "${TodoTable.isUsingAlarm} ${TodoTable.isUsingAlarmType}, "
         ")");
   }
 
-  // Update Added New table scheduledTime
-  Future<void> _onUpgradeTable(
-      Database db, int oldVersion, int newVersion) async {
-    if (oldVersion < newVersion) {
-      await db.execute(
-          'ALTER TABLE $todoTableName ADD COLUMN ${TodoTable.scheduledTime} ${TodoTable.scheduledTimeType}');
+  // Update Added New table column eventId (migrating)
+  Future<void> _onUpgradeTable(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion >= newVersion) {
+      return;
     }
+    // rename old table to temp_name
+    await db.execute('ALTER TABLE $todoTableName RENAME TO ${todoTableName}_temp');
+
+    // create new table with the updated structure
+    db.execute("CREATE TABLE "
+        "$todoTableName ("
+        "${TodoTable.id} ${TodoTable.idType}, "
+        "${TodoTable.title} ${TodoTable.titleType}, "
+        "${TodoTable.desc} ${TodoTable.descType}, "
+        "${TodoTable.check} ${TodoTable.checkType}, "
+        "${TodoTable.eventId} ${TodoTable.eventIdType}, "
+        "${TodoTable.isUsingAlarm} ${TodoTable.isUsingAlarmType}"
+        ")");
+
+    // copy data from temp tabel to new table
+    await db.execute("""
+      INSERT INTO $todoTableName (
+        ${TodoTable.id},
+        ${TodoTable.title},
+        ${TodoTable.desc},
+        ${TodoTable.check},
+        ${TodoTable.isUsingAlarm}
+      )
+      SELECT 
+        ${todoTableName}_temp.${TodoTable.id},
+        ${todoTableName}_temp.${TodoTable.title},
+        ${todoTableName}_temp.${TodoTable.desc},
+        ${todoTableName}_temp.${TodoTable.check},
+        0
+      FROM ${todoTableName}_temp;
+    """);
+
+    // drop the temp table
+    await db.execute("DROP TABLE ${todoTableName}_temp");
+
   }
 }

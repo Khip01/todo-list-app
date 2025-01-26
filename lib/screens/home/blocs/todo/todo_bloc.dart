@@ -11,6 +11,8 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
   TodoBloc() : super(TodoInitial()) {
     on<UpdateTitle>(_todoUpdateTitle);
     on<UpdateDesc>(_todoUpdateDesc);
+    on<UpdateAlarm>(_todoUpdateAlarm);
+    on<UpdateDateField>(_todoUpdateDateField);
     on<TodoValidation>(_todoValidation);
     on<TodoUpdateAll>(_todoUpdateAll);
     on<ClearTodoState>(_clearTodoState);
@@ -18,18 +20,50 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
 
   void _todoUpdateTitle(UpdateTitle event, Emitter<TodoState> emit) {
     final Todo updatedTodo = state.todo.copyWith(title: event.todoTitle);
-    emit(TodoLoaded(todo: updatedTodo, todoRequirement: state.todoRequirement));
+    emit(
+      TodoLoaded(
+        todo: updatedTodo,
+        isFilledDate: state.isFilledDate,
+        todoRequirement: state.todoRequirement,
+      ),
+    );
   }
 
   void _todoUpdateDesc(UpdateDesc event, Emitter<TodoState> emit) {
     final Todo updatedTodo = state.todo.copyWith(desc: event.todoDesc);
-    emit(TodoLoaded(todo: updatedTodo, todoRequirement: state.todoRequirement));
+    emit(
+      TodoLoaded(
+        todo: updatedTodo,
+        isFilledDate: state.isFilledDate,
+        todoRequirement: state.todoRequirement,
+      ),
+    );
+  }
+
+  void _todoUpdateAlarm(UpdateAlarm event, Emitter<TodoState> emit) {
+    final Todo updateTodo = state.todo.copyWith(isUsingAlarm: event.todoAlarm);
+    emit(
+      TodoLoaded(
+        todo: updateTodo,
+        isFilledDate: state.isFilledDate,
+        todoRequirement: state.todoRequirement,
+      ),
+    );
+  }
+
+  void _todoUpdateDateField(UpdateDateField event, Emitter<TodoState> emit) {
+    emit(TodoLoaded(
+      todo: state.todo,
+      isFilledDate: event.isFilledDateField,
+      todoRequirement: state.todoRequirement,
+    ));
   }
 
   void _todoValidation(TodoValidation event, Emitter<TodoState> emit) {
     emit(
       TodoLoaded(
         todo: state.todo,
+        isFilledDate: state.isFilledDate,
         todoRequirement: TodoRequirement(
           titleIsError: event.todoRequirement.titleIsError,
           descIsError: event.todoRequirement.descIsError,
@@ -38,12 +72,18 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
     );
   }
 
-  void _todoUpdateAll(TodoUpdateAll event, Emitter<TodoState> emit){
+  void _todoUpdateAll(TodoUpdateAll event, Emitter<TodoState> emit) {
     final Todo updatedTodo = event.todo;
-    emit(TodoLoaded(todo: updatedTodo, todoRequirement: state.todoRequirement));
+    emit(
+      TodoLoaded(
+        todo: updatedTodo,
+        isFilledDate: state.isFilledDate,
+        todoRequirement: state.todoRequirement,
+      ),
+    );
   }
 
-  void _clearTodoState(ClearTodoState event, Emitter<TodoState> emit){
+  void _clearTodoState(ClearTodoState event, Emitter<TodoState> emit) {
     emit(TodoInitial());
   }
 }

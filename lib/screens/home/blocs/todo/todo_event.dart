@@ -31,6 +31,28 @@ class UpdateDesc extends TodoEvent {
   }
 }
 
+class UpdateAlarm extends TodoEvent {
+  final bool todoAlarm;
+
+  UpdateAlarm._updateAlarm(this.todoAlarm);
+
+  factory UpdateAlarm({required bool todoAlarm}) {
+    return UpdateAlarm._updateAlarm(todoAlarm);
+  }
+}
+
+class UpdateDateField extends TodoEvent {
+  final bool isFilledDateField;
+
+  UpdateDateField._updateField(this.isFilledDateField);
+
+  factory UpdateDateField({
+    required bool isFilledDateField,
+  }) {
+    return UpdateDateField._updateField(isFilledDateField);
+  }
+}
+
 class TodoValidation extends TodoEvent {
   final TodoRequirement todoRequirement;
 

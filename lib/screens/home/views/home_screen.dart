@@ -1,11 +1,12 @@
+import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_list_app/screens/home/blocs/setting/setting_bloc.dart';
-import 'package:todo_list_app/utils/helper/local_notification_helper.dart';
+import 'package:todo_list_app/utils/constants.dart';
+
 import 'package:todo_list_app/utils/style_util.dart';
 import 'package:todo_list_app/widgets/list_tile_item.dart';
 import 'package:todo_list_app/widgets/modal_bottom_sheet.dart';
-import 'package:todo_list_app/widgets/spacing_widget.dart';
 
 import '../../../data/repository/todo_repository.dart';
 import '../../../models/todo.dart';
@@ -17,6 +18,8 @@ import '../blocs/todo_list/todo_list_bloc.dart';
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
 
+  final DeviceCalendarPlugin _deviceCalendarPlugin = DeviceCalendarPlugin();
+
   @override
   Widget build(BuildContext context) {
     double deviceHeight = MediaQuery.sizeOf(context).height;
@@ -25,7 +28,12 @@ class HomeScreen extends StatelessWidget {
     final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
 
     // retrive Data from database -> state in bloc provider
-    context.read<TodoListBloc>().add(LoadTodoList());
+    context.read<TodoListBloc>().add(
+          LoadTodoList(
+            deviceCalendarPlugin: _deviceCalendarPlugin,
+            calendarName: Constants.CALENDAR_NAME,
+          ),
+        );
 
     return Scaffold(
       backgroundColor: StyleUtil.c24,
@@ -65,8 +73,8 @@ class HomeScreen extends StatelessWidget {
                           begin: Alignment.bottomCenter,
                           end: Alignment.topCenter,
                           colors: [
-                            StyleUtil.c16.withOpacity(1),
-                            StyleUtil.c16.withOpacity(0),
+                            StyleUtil.c16.withValues(alpha: 1),
+                            StyleUtil.c16.withValues(alpha: 0),
                           ],
                           stops: const [
                             .7,
@@ -204,8 +212,7 @@ class ContentBody extends StatelessWidget {
             return Center(
               child: Text(
                 "Empty",
-                style:
-                    StyleUtil.textXLMedium.copyWith(color: StyleUtil.c245),
+                style: StyleUtil.textXLMedium.copyWith(color: StyleUtil.c245),
               ),
             );
           } else if (todoListBlocState is TodoListLoaded &&
@@ -278,8 +285,8 @@ class ContentBody extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      StyleUtil.c16.withOpacity(1),
-                      StyleUtil.c16.withOpacity(0),
+                      StyleUtil.c16.withValues(alpha: 1),
+                      StyleUtil.c16.withValues(alpha: 0),
                     ],
                   ),
                 ),
@@ -336,9 +343,9 @@ class ContentBody extends StatelessWidget {
                                   DeleteTodoListEvent(todo: todo),
                                 );
                             // close the notification, if any
-                            LocalNotificationHelper.closeSpecificNotification(
-                              id: int.parse(todo.id),
-                            );
+                            // LocalNotificationHelper.closeSpecificNotification(
+                            //   id: int.parse(todo.id),
+                            // );
                             // Animation Handler
                             if (listKey.currentState != null) {
                               _deleteAnimationListHandler(
@@ -448,34 +455,34 @@ class ContentBody extends StatelessWidget {
                   ),
                 ),
               ),
-              todo.scheduledTime != null && todo.scheduledTime!.isNotEmpty
-                  ? Container(
-                      constraints: const BoxConstraints(
-                        maxHeight: 125,
-                      ),
-                      width: double.maxFinite,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SpacingWidget(vertical: 20),
-                          Text(
-                            "Scheduled on ",
-                            style: StyleUtil.textBaseMedium.copyWith(
-                              color: StyleUtil.c255,
-                            ),
-                          ),
-                          const SpacingWidget(vertical: 5),
-                          Text(
-                            todo.scheduledTime!,
-                            style: StyleUtil.textBaseRegular.copyWith(
-                              color: StyleUtil.c200,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : const SizedBox(),
+              // todo.scheduledTime != null && todo.scheduledTime!.isNotEmpty
+              //     ? Container(
+              //         constraints: const BoxConstraints(
+              //           maxHeight: 125,
+              //         ),
+              //         width: double.maxFinite,
+              //         child: Column(
+              //           crossAxisAlignment: CrossAxisAlignment.start,
+              //           mainAxisSize: MainAxisSize.min,
+              //           children: [
+              //             const SpacingWidget(vertical: 20),
+              //             Text(
+              //               "Scheduled on ",
+              //               style: StyleUtil.textBaseMedium.copyWith(
+              //                 color: StyleUtil.c255,
+              //               ),
+              //             ),
+              //             const SpacingWidget(vertical: 5),
+              //             Text(
+              //               todo.scheduledTime!,
+              //               style: StyleUtil.textBaseRegular.copyWith(
+              //                 color: StyleUtil.c200,
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //       )
+              //     : const SizedBox(),
             ],
           ),
         );

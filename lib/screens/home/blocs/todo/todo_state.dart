@@ -3,9 +3,14 @@ part of 'todo_bloc.dart';
 @immutable
 sealed class TodoState {
   final Todo todo;
+  final bool isFilledDate;
   final TodoRequirement todoRequirement;
 
-  const TodoState({required this.todo, required this.todoRequirement});
+  const TodoState({
+    required this.todo,
+    required this.isFilledDate,
+    required this.todoRequirement,
+  });
 }
 
 final class TodoInitial extends TodoState {
@@ -14,19 +19,25 @@ final class TodoInitial extends TodoState {
     check: false,
     title: "Todo Title",
     desc: "Some Todo Description",
-    scheduledTime: null,
+    event: null,
+    isUsingAlarm: false,
   );
 
   TodoInitial()
       : super(
-            todo: _initTodo,
-            todoRequirement: TodoRequirement(
-              titleIsError: false,
-              descIsError: false,
-            ),
-  );
+          todo: _initTodo,
+          isFilledDate: false,
+          todoRequirement: TodoRequirement(
+            titleIsError: false,
+            descIsError: false,
+          ),
+        );
 }
 
 final class TodoLoaded extends TodoState {
-  const TodoLoaded({required super.todo, required super.todoRequirement});
+  const TodoLoaded({
+    required super.todo,
+    required super.isFilledDate,
+    required super.todoRequirement,
+  });
 }

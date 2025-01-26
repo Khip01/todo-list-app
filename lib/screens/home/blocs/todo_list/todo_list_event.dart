@@ -21,7 +21,15 @@ class DeleteTodoListEvent extends TodoListEvent {
   DeleteTodoListEvent({required this.todo});
 }
 
-class LoadTodoList extends TodoListEvent {}
+class LoadTodoList extends TodoListEvent {
+  final DeviceCalendarPlugin deviceCalendarPlugin;
+  final String calendarName;
+
+  LoadTodoList({
+    required this.deviceCalendarPlugin,
+    required this.calendarName,
+  });
+}
 
 class SetIsError extends TodoListEvent {
   final bool isError;

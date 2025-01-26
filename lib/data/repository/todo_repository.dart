@@ -1,3 +1,4 @@
+import 'package:device_calendar/device_calendar.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:todo_list_app/data/datasource/todo_database.dart';
 
@@ -12,28 +13,48 @@ class TodoRepository {
   factory TodoRepository() => instance;
 
   // Get Todo List
-  Future<List<Todo>> getTodoList() async {
+  Future<List<Todo>> getTodoList({
+    required DeviceCalendarPlugin deviceCalendarPlugin,
+    required String calendarName,
+  }) async {
     final Database database = await TodoDatabase().getDatabase;
 
     final List<Map<String, dynamic>> todoListJson =
         await database.query(todoTableName);
 
-    final List<Todo> todoListObject =
-        todoListJson.map((json) => Todo.fromJson(json)).toList();
-    return todoListJson.map((element) => Todo.fromJson(element)).toList();
+    final List<Todo> todoList = await Future.wait(
+      todoListJson.map((json) async {
+        return await Todo.fromJson(
+          json: json,
+          deviceCalendarPlugin: deviceCalendarPlugin,
+          calendarName: calendarName,
+        );
+      }).toList(),
+    );
+
+    return todoList;
   }
 
   // Get Specific Todo
-  Future<Todo> getTodoFromId({required int id}) async {
+  Future<Todo> getTodoFromId({
+    required int todoId,
+    required DeviceCalendarPlugin deviceCalendarPlugin,
+    required String calendarName,
+  }) async {
     final Database database = await TodoDatabase().getDatabase;
 
     final Map<String, dynamic> todoJson = (await database.query(
       todoTableName,
       where: "${TodoTable.id} = ?",
-      whereArgs: [id],
-    )).first;
+      whereArgs: [todoId],
+    ))
+        .first;
 
-    Todo todoObject = Todo.fromJson(todoJson);
+    Todo todoObject = await Todo.fromJson(
+      json: todoJson,
+      deviceCalendarPlugin: deviceCalendarPlugin,
+      calendarName: calendarName,
+    );
 
     return todoObject;
   }
