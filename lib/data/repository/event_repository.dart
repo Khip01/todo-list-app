@@ -40,7 +40,7 @@ class EventRepository {
     return eventsResult.data!.first;
   }
 
-  static Future<Event> addOrUpdateEventToCalendar({
+  static Future<String> addOrUpdateEventToCalendar({
     required DeviceCalendarPlugin deviceCalendarPlugin,
     required String calendarId,
     String? eventId,
@@ -86,13 +86,13 @@ class EventRepository {
       throw Exception("Failed to add event to calendar!");
     }
 
-    return event;
+    return result.data!;
   }
 
   static Future<bool> deleteEventFromCalendar({
     required DeviceCalendarPlugin deviceCalendarPlugin,
     required String calendarId,
-    required String eventId,
+    required String? eventId,
   }) async {
     final Result<bool> deleteResult =
     await deviceCalendarPlugin.deleteEvent(calendarId, eventId);
@@ -101,7 +101,6 @@ class EventRepository {
       throw Exception("Failed to delete event: ${deleteResult.errors}");
     }
 
-    // return "Event successfully removed from calendar!";
     return deleteResult.data ?? false;
   }
 

@@ -25,7 +25,7 @@ class Todo {
   final String title;
   final String desc;
   final bool check;
-  Event? event; // optional
+  String? eventId; // optional
   final bool isUsingAlarm;
 
   Todo({
@@ -33,7 +33,7 @@ class Todo {
     required this.title,
     required this.desc,
     required this.check,
-    this.event,
+    this.eventId,
     required this.isUsingAlarm,
   });
 
@@ -42,7 +42,7 @@ class Todo {
     String? title,
     String? desc,
     bool? check,
-    Event? event,
+    String? eventId,
     bool? isUsingAlarm,
   }) {
     return Todo(
@@ -50,7 +50,7 @@ class Todo {
       title: title ?? this.title,
       desc: desc ?? this.desc,
       check: check ?? this.check,
-      event: event ?? this.event,
+      eventId: eventId ?? this.eventId,
       isUsingAlarm: isUsingAlarm ?? this.isUsingAlarm,
     );
   }
@@ -60,18 +60,12 @@ class Todo {
     required DeviceCalendarPlugin deviceCalendarPlugin,
     required String calendarName,
   }) async {
-    Event? event = await EventRepository.getEventFromCalendar(
-      deviceCalendarPlugin: deviceCalendarPlugin,
-      calendarName: calendarName,
-      eventId: json[TodoTable.eventId] as String? ?? "",
-    );
-
     return Todo(
       id: json[TodoTable.id] as String,
       title: json[TodoTable.title] as String,
       desc: json[TodoTable.desc] as String,
       check: json[TodoTable.check] == 1,
-      event: event,
+      eventId: json[TodoTable.eventId],
       isUsingAlarm: json[TodoTable.isUsingAlarm] == 1,
     );
   }
@@ -81,7 +75,7 @@ class Todo {
         TodoTable.title: title,
         TodoTable.desc: desc,
         TodoTable.check: check ? 1 : 0,
-        TodoTable.eventId: event == null ? "" : event!.eventId,
+        TodoTable.eventId: eventId ?? "",
         TodoTable.isUsingAlarm: isUsingAlarm ? 1 : 0,
       };
 }

@@ -19,7 +19,7 @@ final class TodoInitial extends TodoState {
     check: false,
     title: "Todo Title",
     desc: "Some Todo Description",
-    event: null,
+    eventId: null,
     isUsingAlarm: false,
   );
 

@@ -45,9 +45,19 @@ void showCustomModalBottomSheet({
   if (editedTodo != null) {
     prop.todoTitleTextController.text = editedTodo.title;
     prop.todoDescTextController.text = editedTodo.desc;
-    prop.todoScheduledTextController.text = editedTodo.event != null
-        ? DateTimeFormatter.formatToString(dateTime: editedTodo.event!.start)
-        : "";
+    if (editedTodo.eventId != null) {
+      DeviceCalendarPlugin deviceCalendarPlugin = DeviceCalendarPlugin();
+      String scheduledTimeStr = DateTimeFormatter.formatToString(
+        dateTime: EventRepository.getEventFromCalendar(
+          deviceCalendarPlugin: deviceCalendarPlugin,
+          calendarName: Constants.CALENDAR_NAME,
+          eventId: editedTodo.eventId!,
+        ),
+      );
+      prop.todoScheduledTextController.text = scheduledTimeStr;
+    } else {
+      prop.todoScheduledTextController.text = "";
+    }
 
     todoBlocContext.read<TodoBloc>().add(
           TodoUpdateAll(todo: editedTodo),
@@ -232,7 +242,8 @@ void showCustomModalBottomSheet({
                               );
                             },
                           ),
-                          if (Platform.isAndroid && !settingBlocState.isSettingMode)
+                          if (Platform.isAndroid &&
+                              !settingBlocState.isSettingMode)
                             CustomSwitch(
                               isVisible: todoBlocState.isFilledDate,
                               value: todoBlocState.todo.isUsingAlarm,
@@ -349,7 +360,7 @@ void _validateSubmitedTodo({
     // Update Schedule Notification
     if (scheduledTime != "" || scheduledTime.isNotEmpty) {
       try {
-        Event updatedEvent = await _addOrUpdateScheduledToDoHandler(
+        String updatedIdEvent = await _addOrUpdateScheduledToDoHandler(
           scheduledTime: scheduledTime,
           todo: todo,
           widgetContext: widgetContext,
@@ -357,7 +368,7 @@ void _validateSubmitedTodo({
           todoTitleTextController: todoTitleTextController,
           todoDescTextController: todoDescTextController,
         );
-        todo.event = updatedEvent;
+        todo.eventId = updatedIdEvent;
       } catch (error) {
         if (!widgetContext.mounted) return;
         _showSnackbarMessage(widgetContext, error.toString(), isError: true);
@@ -373,7 +384,7 @@ void _validateSubmitedTodo({
     // ----------- Add Schedule Notification (if any)
     if (scheduledTime != "" || scheduledTime.isNotEmpty) {
       try {
-        Event createdEvent = await _addOrUpdateScheduledToDoHandler(
+        String createdIdEvent = await _addOrUpdateScheduledToDoHandler(
           scheduledTime: scheduledTime,
           todo: todo,
           widgetContext: widgetContext,
@@ -381,7 +392,7 @@ void _validateSubmitedTodo({
           todoTitleTextController: todoTitleTextController,
           todoDescTextController: todoDescTextController,
         );
-        todo.event = createdEvent;
+        todo.eventId = createdIdEvent;
         // Is Using Alarm ?
         if (todo.isUsingAlarm) {
           EventRepository.setAlarm(
@@ -426,7 +437,7 @@ void _validateSubmitedTodo({
   );
 }
 
-Future<Event> _addOrUpdateScheduledToDoHandler({
+Future<String> _addOrUpdateScheduledToDoHandler({
   required String scheduledTime,
   required Todo todo,
   required BuildContext widgetContext,
@@ -443,15 +454,15 @@ Future<Event> _addOrUpdateScheduledToDoHandler({
       calendarName: Constants.CALENDAR_NAME,
       deviceCalendarPlugin: deviceCalendarPlugin,
     );
-    Event createdEvent = await EventRepository.addOrUpdateEventToCalendar(
+    String createdIdEvent = await EventRepository.addOrUpdateEventToCalendar(
       deviceCalendarPlugin: deviceCalendarPlugin,
       calendarId: calendarId,
-      eventId: todo.event?.eventId,
+      eventId: todo.eventId,
       title: todo.title,
       start: scheduledTimeDT,
       end: null,
     );
-    return createdEvent;
+    return createdIdEvent;
   } catch (error) {
     rethrow;
   }
