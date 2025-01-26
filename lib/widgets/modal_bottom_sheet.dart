@@ -1,12 +1,18 @@
+import 'dart:io';
+
+import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:todo_list_app/data/repository/calendar_repository.dart';
+import 'package:todo_list_app/data/repository/event_repository.dart';
 import 'package:todo_list_app/data/repository/todo_repository.dart';
-import 'package:todo_list_app/utils/helper/local_notification_helper.dart';
+import 'package:todo_list_app/utils/constants.dart';
+
 import 'package:todo_list_app/utils/helper_class/todo_form_controller.dart';
+import 'package:todo_list_app/widgets/custom_switch.dart';
 import 'package:todo_list_app/widgets/custom_textfield_datetime.dart';
 import 'package:todo_list_app/widgets/textfield_section_clear_button.dart';
-import 'package:timezone/timezone.dart' as timezone;
 
 import '../models/todo.dart';
 import '../screens/home/blocs/setting/setting_bloc.dart';
@@ -39,7 +45,9 @@ void showCustomModalBottomSheet({
   if (editedTodo != null) {
     prop.todoTitleTextController.text = editedTodo.title;
     prop.todoDescTextController.text = editedTodo.desc;
-    prop.todoScheduledTextController.text = editedTodo.scheduledTime ?? "";
+    prop.todoScheduledTextController.text = editedTodo.event != null
+        ? DateTimeFormatter.formatToString(dateTime: editedTodo.event!.start)
+        : "";
 
     todoBlocContext.read<TodoBloc>().add(
           TodoUpdateAll(todo: editedTodo),
@@ -75,6 +83,7 @@ void showCustomModalBottomSheet({
                       title: todoBlocState.todo.title,
                       desc: todoBlocState.todo.desc,
                       check: todoBlocState.todo.check,
+                      isUsingAlarm: todoBlocState.todo.isUsingAlarm,
                     );
                   } else {
                     previewNewTodo = Todo(
@@ -82,6 +91,7 @@ void showCustomModalBottomSheet({
                       title: todoBlocState.todo.title,
                       desc: todoBlocState.todo.desc,
                       check: todoBlocState.todo.check,
+                      isUsingAlarm: todoBlocState.todo.isUsingAlarm,
                     );
                   }
 
@@ -107,7 +117,7 @@ void showCustomModalBottomSheet({
                           TextFieldSectionWithClearButton(
                             controller: prop.todoTitleTextController,
                             focusNode: prop.todoTitleFocusNode,
-                            textOnRemove: (value) => _onChangeTextField(
+                            textOnRemove: (_) => _onChangeTextField(
                               todoBlocContext: todoBlocContext,
                               eventUpdate: UpdateTitle(
                                 todoTitle: prop.todoTitleTextController.text,
@@ -126,7 +136,7 @@ void showCustomModalBottomSheet({
                               controller: prop.todoTitleTextController,
                               focusNode: prop.todoTitleFocusNode,
                               hintText: "Todo Title",
-                              onChange: (value) => _onChangeTextField(
+                              onChange: (_) => _onChangeTextField(
                                 todoBlocContext: todoBlocContext,
                                 eventUpdate: UpdateTitle(
                                   todoTitle: prop.todoTitleTextController.text,
@@ -150,7 +160,7 @@ void showCustomModalBottomSheet({
                           TextFieldSectionWithClearButton(
                             controller: prop.todoDescTextController,
                             focusNode: prop.todoDescFocusNode,
-                            textOnRemove: (value) => _onChangeTextField(
+                            textOnRemove: (_) => _onChangeTextField(
                               todoBlocContext: todoBlocContext,
                               eventUpdate: UpdateDesc(
                                 todoDesc: prop.todoDescTextController.text,
@@ -170,7 +180,7 @@ void showCustomModalBottomSheet({
                               focusNode: prop.todoDescFocusNode,
                               hintText: "Some Todo Description",
                               customMaxLine: 10,
-                              onChange: (value) => _onChangeTextField(
+                              onChange: (_) => _onChangeTextField(
                                 todoBlocContext: todoBlocContext,
                                 eventUpdate: UpdateDesc(
                                   todoDesc: prop.todoDescTextController.text,
@@ -195,8 +205,42 @@ void showCustomModalBottomSheet({
                             controller: prop.todoScheduledTextController,
                             focusNode: prop.todoScheduledFocusNode,
                             hintText: "Scheduled Notification (optional)",
-                            onChange: (_) {},
+                            textOnRemoveChange: (_) {
+                              _onChangeFilledDateTimeField(
+                                todoBlocContext: todoBlocContext,
+                                eventUpdate: UpdateDateField(
+                                  isFilledDateField: false,
+                                ),
+                              );
+                              _onChangeSwitch(
+                                todoBlocContext: todoBlocContext,
+                                eventUpdate: UpdateAlarm(todoAlarm: false),
+                              );
+                            },
+                            dateButtonOnConfirm: (date) {
+                              prop.todoScheduledFocusNode.requestFocus();
+                              prop.todoScheduledTextController.text =
+                                  DateTimeFormatter.formatToString(
+                                dateTime: date,
+                              );
+                              _onChangeFilledDateTimeField(
+                                // Change filledDateTime state
+                                todoBlocContext: todoBlocContext,
+                                eventUpdate: UpdateDateField(
+                                  isFilledDateField: true,
+                                ),
+                              );
+                            },
                           ),
+                          if (Platform.isAndroid && !settingBlocState.isSettingMode)
+                            CustomSwitch(
+                              isVisible: todoBlocState.isFilledDate,
+                              value: todoBlocState.todo.isUsingAlarm,
+                              onChanged: (value) => _onChangeSwitch(
+                                todoBlocContext: todoBlocContext,
+                                eventUpdate: UpdateAlarm(todoAlarm: value),
+                              ),
+                            ),
                           CustomButton(
                             onPressed: () => _validateSubmitedTodo(
                               todo: Todo(
@@ -204,9 +248,12 @@ void showCustomModalBottomSheet({
                                 title: prop.todoTitleTextController.text,
                                 desc: prop.todoDescTextController.text,
                                 check: previewNewTodo.check,
-                                scheduledTime:
-                                    prop.todoScheduledTextController.text,
+                                isUsingAlarm: previewNewTodo.isUsingAlarm,
+                                // scheduledTime:
+                                //     prop.todoScheduledTextController.text,
                               ),
+                              scheduledTime:
+                                  prop.todoScheduledTextController.text,
                               todoBlocContext: todoBlocContext,
                               todoListBlocContext: todoListBlocContext,
                               settingBlocState: settingBlocState,
@@ -251,8 +298,27 @@ void _onChangeTextField({
   }
 }
 
+void _onChangeFilledDateTimeField({
+  required BuildContext todoBlocContext,
+  required TodoEvent eventUpdate,
+}) {
+  todoBlocContext.read<TodoBloc>().add(
+        eventUpdate,
+      );
+}
+
+void _onChangeSwitch({
+  required BuildContext todoBlocContext,
+  required TodoEvent eventUpdate,
+}) {
+  todoBlocContext.read<TodoBloc>().add(
+        eventUpdate,
+      );
+}
+
 void _validateSubmitedTodo({
   required Todo todo,
+  required String scheduledTime,
   required BuildContext todoBlocContext,
   required BuildContext todoListBlocContext,
   required SettingState settingBlocState,
@@ -281,44 +347,122 @@ void _validateSubmitedTodo({
           UpdateTodoListEvent(todo: todo),
         );
     // Update Schedule Notification
-    if (todo.scheduledTime != null && todo.scheduledTime!.isNotEmpty) {
-      // Update Schedule Notification Where id
-      LocalNotificationHelper.updateScheduledNotification(
-        id: todo.id,
-        title: todo.title,
-        body: todo.desc,
-        tzDateScheduled: timezone.TZDateTime.from(
-          DateTimeFormatter.formatToDateTime(dateTimeStr: todo.scheduledTime!),
-          timezone.local,
-        ),
-      );
+    if (scheduledTime != "" || scheduledTime.isNotEmpty) {
+      try {
+        Event updatedEvent = await _addOrUpdateScheduledToDoHandler(
+          scheduledTime: scheduledTime,
+          todo: todo,
+          widgetContext: widgetContext,
+          todoBlocContext: todoBlocContext,
+          todoTitleTextController: todoTitleTextController,
+          todoDescTextController: todoDescTextController,
+        );
+        todo.event = updatedEvent;
+      } catch (error) {
+        if (!widgetContext.mounted) return;
+        _showSnackbarMessage(widgetContext, error.toString(), isError: true);
+        _clearStateAndField(
+          todoBlocContext: todoBlocContext,
+          widgetContext: widgetContext,
+          todoTitleTextController: todoTitleTextController,
+          todoDescTextController: todoDescTextController,
+        );
+      }
     }
   } else {
-    // Add Todo -> SQLFlite
+    // ----------- Add Schedule Notification (if any)
+    if (scheduledTime != "" || scheduledTime.isNotEmpty) {
+      try {
+        Event createdEvent = await _addOrUpdateScheduledToDoHandler(
+          scheduledTime: scheduledTime,
+          todo: todo,
+          widgetContext: widgetContext,
+          todoBlocContext: todoBlocContext,
+          todoTitleTextController: todoTitleTextController,
+          todoDescTextController: todoDescTextController,
+        );
+        todo.event = createdEvent;
+        // Is Using Alarm ?
+        if (todo.isUsingAlarm) {
+          EventRepository.setAlarm(
+            eventStartDate: DateTimeFormatter.formatToDateTime(
+              dateTimeStr: scheduledTime,
+            ),
+            message: todo.title,
+          );
+        }
+      } catch (err) {
+        if (!widgetContext.mounted) return;
+        _showSnackbarMessage(widgetContext, err.toString(), isError: true);
+        _clearStateAndField(
+          todoBlocContext: todoBlocContext,
+          widgetContext: widgetContext,
+          todoTitleTextController: todoTitleTextController,
+          todoDescTextController: todoDescTextController,
+        );
+        return;
+      }
+    }
+    // ----------- Add Todo -> SQFlite
     await TodoRepository().addTodo(todo: todo);
-    // Add State
+    // ----------- Add State
     if (!todoListBlocContext.mounted) return;
     todoListBlocContext.read<TodoListBloc>().add(
           AddTodoListEvent(todo: todo),
         );
-    // Add Schedule Notification (if any)
-    if (todo.scheduledTime != null && todo.scheduledTime!.isNotEmpty) {
-      // Add Schedule Notification
-      LocalNotificationHelper.showScheduledNotification(
-        id: todo.id,
-        title: todo.title,
-        body: todo.desc,
-        tzDateScheduled: timezone.TZDateTime.from(
-          DateTimeFormatter.formatToDateTime(dateTimeStr: todo.scheduledTime!),
-          timezone.local,
-        ),
-      );
-    }
-    // Animation insertItem
+    // ----------- Animation insertItem
     if (listKey.currentState != null) {
       listKey.currentState!.insertItem(0);
     }
   }
+  if (!widgetContext.mounted) return;
+  _showSnackbarMessage(widgetContext, "ToDo added successfully!",
+      isError: false);
+  _clearStateAndField(
+    todoBlocContext: todoBlocContext,
+    widgetContext: widgetContext,
+    todoTitleTextController: todoTitleTextController,
+    todoDescTextController: todoDescTextController,
+  );
+}
+
+Future<Event> _addOrUpdateScheduledToDoHandler({
+  required String scheduledTime,
+  required Todo todo,
+  required BuildContext widgetContext,
+  required BuildContext todoBlocContext,
+  required TextEditingController todoTitleTextController,
+  required TextEditingController todoDescTextController,
+}) async {
+  try {
+    DeviceCalendarPlugin deviceCalendarPlugin = DeviceCalendarPlugin();
+    DateTime scheduledTimeDT = DateTimeFormatter.formatToDateTime(
+      dateTimeStr: scheduledTime,
+    );
+    String calendarId = await CalendarRepository.getOrCreateCalendarId(
+      calendarName: Constants.CALENDAR_NAME,
+      deviceCalendarPlugin: deviceCalendarPlugin,
+    );
+    Event createdEvent = await EventRepository.addOrUpdateEventToCalendar(
+      deviceCalendarPlugin: deviceCalendarPlugin,
+      calendarId: calendarId,
+      eventId: todo.event?.eventId,
+      title: todo.title,
+      start: scheduledTimeDT,
+      end: null,
+    );
+    return createdEvent;
+  } catch (error) {
+    rethrow;
+  }
+}
+
+void _clearStateAndField({
+  required BuildContext todoBlocContext,
+  required BuildContext widgetContext,
+  required TextEditingController todoTitleTextController,
+  required TextEditingController todoDescTextController,
+}) {
   todoBlocContext.read<TodoBloc>().add(
         TodoValidation(
           todoRequirement: TodoRequirement(
@@ -340,4 +484,20 @@ void _validateSubmitedTodo({
           todoDesc: todoDescTextController.text,
         ),
       );
+}
+
+void _showSnackbarMessage(BuildContext context, String msg,
+    {required bool isError}) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      backgroundColor:
+          isError ? StyleUtil.cDeleteInactive : StyleUtil.cSuccessActive,
+      content: Text(
+        msg,
+        style: StyleUtil.textXLRegular.copyWith(
+          color: StyleUtil.c200,
+        ),
+      ),
+    ),
+  );
 }

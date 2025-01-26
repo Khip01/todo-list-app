@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_list_app/screens/home/blocs/setting/setting_bloc.dart';
 import 'package:todo_list_app/widgets/custom_checkbox.dart';
 import 'package:todo_list_app/widgets/custom_edit_icon.dart';
-import 'package:todo_list_app/widgets/spacing_widget.dart';
 
 import '../models/todo.dart';
 import '../utils/style_util.dart';
