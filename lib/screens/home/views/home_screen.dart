@@ -209,12 +209,36 @@ class ContentBody extends StatelessWidget {
       ),
       child: BlocBuilder<TodoListBloc, TodoListState>(
         builder: (todoListBlocContext, todoListBlocState) {
-          if (todoListBlocState is TodoListInitial ||
+          if (todoListBlocState is TodoListInitial) {
+            // TodoListLoading
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          } else if (todoListBlocState is TodoListError) {
+            return Center(
+              child: Container(
+                width: double.maxFinite,
+                padding: EdgeInsets.only(left: 40, right: 40, bottom: 64),
+                child: Text(
+                  todoListBlocState.message!,
+                  style: StyleUtil.textXLMedium.copyWith(
+                    color: StyleUtil.c245,
+                  ),
+                ),
+              ),
+            );
+          } else if (todoListBlocState is TodoListLoaded &&
               todoListBlocState.todoList.isEmpty) {
             return Center(
-              child: Text(
-                "Empty",
-                style: StyleUtil.textXLMedium.copyWith(color: StyleUtil.c245),
+              child: Container(
+                width: double.maxFinite,
+                padding: EdgeInsets.only(left: 40, right: 40, bottom: 64),
+                child: Text(
+                  "Empty",
+                  style: StyleUtil.textXLMedium.copyWith(
+                    color: StyleUtil.c245,
+                  ),
+                ),
               ),
             );
           } else if (todoListBlocState is TodoListLoaded &&
@@ -223,10 +247,6 @@ class ContentBody extends StatelessWidget {
             return _listViewBody(
               todoList: todoList,
               listKey: listKey,
-            );
-          } else if (todoListBlocState is TodoListError) {
-            return Center(
-              child: Text(todoListBlocState.message!),
             );
           } else {
             // TodoListLoading
@@ -398,7 +418,8 @@ class ContentBody extends StatelessWidget {
           eventId: todo.eventId,
         );
         if (!widgetContext.mounted) return;
-        if (deleteResult) { // success
+        if (deleteResult) {
+          // success
           _showSnackbarMessage(
             widgetContext,
             "ToDo deleted successfully!",

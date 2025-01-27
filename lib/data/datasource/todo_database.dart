@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:todo_list_app/models/todo.dart';
+import 'package:todo_list_app/utils/constants.dart';
 
 class TodoDatabase {
   // Implement Singleton
@@ -11,7 +12,7 @@ class TodoDatabase {
   factory TodoDatabase() => instance;
 
   // Open Database
-  final String databaseName = "todo.db";
+  final String databaseName = Constants.SQFLITE_DATABASE_NAME;
 
   static Database? _database;
 
@@ -28,7 +29,7 @@ class TodoDatabase {
 
     return openDatabase(
       path,
-      version: 4,
+      version: 5,
       onCreate: _onCreateTable,
       onUpgrade: _onUpgradeTable,
     );
@@ -43,7 +44,6 @@ class TodoDatabase {
         "${TodoTable.desc} ${TodoTable.descType}, "
         "${TodoTable.check} ${TodoTable.checkType}, "
         "${TodoTable.eventId} ${TodoTable.eventIdType}"
-        "${TodoTable.isUsingAlarm} ${TodoTable.isUsingAlarmType}, "
         ")");
   }
 
@@ -62,8 +62,7 @@ class TodoDatabase {
         "${TodoTable.title} ${TodoTable.titleType}, "
         "${TodoTable.desc} ${TodoTable.descType}, "
         "${TodoTable.check} ${TodoTable.checkType}, "
-        "${TodoTable.eventId} ${TodoTable.eventIdType}, "
-        "${TodoTable.isUsingAlarm} ${TodoTable.isUsingAlarmType}"
+        "${TodoTable.eventId} ${TodoTable.eventIdType}"
         ")");
 
     // copy data from temp tabel to new table
@@ -72,15 +71,13 @@ class TodoDatabase {
         ${TodoTable.id},
         ${TodoTable.title},
         ${TodoTable.desc},
-        ${TodoTable.check},
-        ${TodoTable.isUsingAlarm}
+        ${TodoTable.check}
       )
       SELECT 
         ${todoTableName}_temp.${TodoTable.id},
         ${todoTableName}_temp.${TodoTable.title},
         ${todoTableName}_temp.${TodoTable.desc},
-        ${todoTableName}_temp.${TodoTable.check},
-        0
+        ${todoTableName}_temp.${TodoTable.check}
       FROM ${todoTableName}_temp;
     """);
 

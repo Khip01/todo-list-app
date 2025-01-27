@@ -1,5 +1,4 @@
 import 'package:device_calendar/device_calendar.dart';
-import 'package:todo_list_app/data/repository/event_repository.dart';
 
 const String todoTableName = "todo";
 
@@ -10,14 +9,12 @@ class TodoTable {
   static const String desc = "description";
   static const String check = "isChecked";
   static const String eventId = "eventId";
-  static const String isUsingAlarm = "isUsingAlarm";
 
   static const String idType = "TEXT PRIMARY KEY";
   static const String titleType = "TEXT NOT NULL";
   static const String descType = "TEXT NOT NULL";
   static const String checkType = "INTEGER NOT NULL";
   static const String eventIdType = "TEXT";
-  static const String isUsingAlarmType = "INTEGER NOT NULL";
 }
 
 class Todo {
@@ -66,7 +63,7 @@ class Todo {
       desc: json[TodoTable.desc] as String,
       check: json[TodoTable.check] == 1,
       eventId: json[TodoTable.eventId],
-      isUsingAlarm: json[TodoTable.isUsingAlarm] == 1,
+      isUsingAlarm: false,
     );
   }
 
@@ -76,7 +73,6 @@ class Todo {
         TodoTable.desc: desc,
         TodoTable.check: check ? 1 : 0,
         TodoTable.eventId: eventId ?? "",
-        TodoTable.isUsingAlarm: isUsingAlarm ? 1 : 0,
       };
 }
 

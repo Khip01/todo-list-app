@@ -56,7 +56,7 @@ class TodoListBloc extends Bloc<TodoListEvent, TodoListState> {
         emit(TodoListLoaded(todoList: todoList.reversed.toList()));
       }
     } catch (error) {
-      emit(TodoListError(todoList: [], message: "Error Bro\nLog: $error"));
+      emit(TodoListError(todoList: [], message: "Error State\nLog: $error"));
     }
   }
 
