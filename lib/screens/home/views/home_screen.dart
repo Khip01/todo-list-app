@@ -14,6 +14,7 @@ import '../../../data/repository/todo_repository.dart';
 import '../../../models/todo.dart';
 import '../../../values/images.dart';
 import '../../../widgets/pressable_delete_button.dart';
+import '../../../widgets/spacing_widget.dart';
 import '../blocs/todo/todo_bloc.dart';
 import '../blocs/todo_list/todo_list_bloc.dart';
 
@@ -340,9 +341,10 @@ class ContentBody extends StatelessWidget {
                   todo: todo,
                   listItemIndex: index,
                   listKey: listKey,
-                  onTap: () => _dialogBuilder(
+                  onTap: (dateStr) => _dialogBuilder(
                     context: context,
                     todo: todo,
+                    eventDateStart: dateStr,
                   ),
                 ),
                 Visibility(
@@ -483,6 +485,7 @@ class ContentBody extends StatelessWidget {
   Future<void> _dialogBuilder({
     required BuildContext context,
     required Todo todo,
+    required String? eventDateStart
   }) {
     return showDialog(
       context: context,
@@ -540,34 +543,34 @@ class ContentBody extends StatelessWidget {
                   ),
                 ),
               ),
-              // todo.scheduledTime != null && todo.scheduledTime!.isNotEmpty
-              //     ? Container(
-              //         constraints: const BoxConstraints(
-              //           maxHeight: 125,
-              //         ),
-              //         width: double.maxFinite,
-              //         child: Column(
-              //           crossAxisAlignment: CrossAxisAlignment.start,
-              //           mainAxisSize: MainAxisSize.min,
-              //           children: [
-              //             const SpacingWidget(vertical: 20),
-              //             Text(
-              //               "Scheduled on ",
-              //               style: StyleUtil.textBaseMedium.copyWith(
-              //                 color: StyleUtil.c255,
-              //               ),
-              //             ),
-              //             const SpacingWidget(vertical: 5),
-              //             Text(
-              //               todo.scheduledTime!,
-              //               style: StyleUtil.textBaseRegular.copyWith(
-              //                 color: StyleUtil.c200,
-              //               ),
-              //             ),
-              //           ],
-              //         ),
-              //       )
-              //     : const SizedBox(),
+              eventDateStart != null && eventDateStart.isNotEmpty
+                  ? Container(
+                      constraints: const BoxConstraints(
+                        maxHeight: 125,
+                      ),
+                      width: double.maxFinite,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SpacingWidget(vertical: 20),
+                          Text(
+                            "Scheduled on ",
+                            style: StyleUtil.textBaseMedium.copyWith(
+                              color: StyleUtil.c255,
+                            ),
+                          ),
+                          const SpacingWidget(vertical: 5),
+                          Text(
+                            eventDateStart,
+                            style: StyleUtil.textBaseRegular.copyWith(
+                              color: StyleUtil.c200,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : const SizedBox(),
             ],
           ),
         );

@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_list_app/widgets/modal_bottom_sheet.dart';
 
 import '../models/todo.dart';
-import '../screens/home/blocs/setting/setting_bloc.dart';
+import '../screens/home/blocs/todo/todo_bloc.dart';
 import '../utils/style_util.dart';
 
 class CustomEditIcon extends StatelessWidget {
@@ -18,7 +18,7 @@ class CustomEditIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SettingBloc, SettingState>(
+    return BlocBuilder<TodoBloc, TodoState>(
       builder: (todoBlocContext, todoBlocState) {
         return InkWell(
           onTap: () {

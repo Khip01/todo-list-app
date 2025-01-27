@@ -1,8 +1,11 @@
+import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:todo_list_app/screens/home/blocs/setting/setting_bloc.dart';
+import 'package:todo_list_app/utils/helper/datetime_formatter.dart';
 import 'package:todo_list_app/widgets/custom_checkbox.dart';
 import 'package:todo_list_app/widgets/custom_edit_icon.dart';
+import 'package:todo_list_app/widgets/custom_trailing_list_item.dart';
 
 import '../models/todo.dart';
 import '../utils/style_util.dart';
@@ -12,9 +15,9 @@ class ListTileItem extends StatelessWidget {
   final bool? isWidgetDummy;
   final int? listItemIndex;
   final GlobalKey<AnimatedListState> listKey;
-  final Function()? onTap;
+  final Function(String? dateStr)? onTap;
 
-  const ListTileItem({
+  ListTileItem({
     super.key,
     required this.todo,
     this.isWidgetDummy,
@@ -24,6 +27,8 @@ class ListTileItem extends StatelessWidget {
   }) : assert(isWidgetDummy != null || listItemIndex != null,
             "there must be at least 1 atribute declared");
 
+  Event? eventTodoCallback;
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SettingBloc, SettingState>(
@@ -31,6 +36,7 @@ class ListTileItem extends StatelessWidget {
         return IgnorePointer(
           ignoring: isWidgetDummy == null ? false : true,
           child: Container(
+            padding: EdgeInsets.only(right: 12),
             margin: const EdgeInsets.only(bottom: 20),
             height: 70,
             width: double.maxFinite,
@@ -41,6 +47,7 @@ class ListTileItem extends StatelessWidget {
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
+              // crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 // Leading
                 Visibility(
@@ -64,7 +71,17 @@ class ListTileItem extends StatelessWidget {
                 Flexible(
                   fit: FlexFit.tight,
                   child: GestureDetector(
-                    onTap: onTap,
+                    onTap: () async {
+                      String? dateStr;
+                      if (eventTodoCallback == null) {
+                        dateStr = null;
+                      } else {
+                        dateStr = DateTimeFormatter.formatToString(
+                          dateTime: eventTodoCallback!.start,
+                        );
+                      }
+                      onTap!(dateStr);
+                    },
                     child: Container(
                       color: Colors.transparent,
                       width: double.maxFinite,
@@ -78,15 +95,19 @@ class ListTileItem extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: StyleUtil.textXLMedium.copyWith(
-                              color: isTodoChecked(
-                                StyleUtil.c200,
-                                StyleUtil.c255,
-                              ),
+                              color: settingBlocState.isSettingMode
+                                  ? StyleUtil.c89
+                                  : isTodoChecked(
+                                      StyleUtil.c200,
+                                      StyleUtil.c255,
+                                    ),
                               decoration: isTodoChecked(
                                 TextDecoration.lineThrough,
                                 null,
                               ),
-                              decorationColor: StyleUtil.c255,
+                              decorationColor: settingBlocState.isSettingMode
+                                  ? StyleUtil.c89
+                                  : StyleUtil.c255,
                               decorationThickness: 2,
                             ),
                           ),
@@ -95,15 +116,19 @@ class ListTileItem extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: StyleUtil.textBaseRegular.copyWith(
-                              color: isTodoChecked(
-                                StyleUtil.c200,
-                                StyleUtil.c200,
-                              ),
+                              color: settingBlocState.isSettingMode
+                                  ? StyleUtil.c89
+                                  : isTodoChecked(
+                                      StyleUtil.c200,
+                                      StyleUtil.c200,
+                                    ),
                               decoration: isTodoChecked(
                                 TextDecoration.lineThrough,
                                 null,
                               ),
-                              decorationColor: StyleUtil.c255,
+                              decorationColor: settingBlocState.isSettingMode
+                                  ? StyleUtil.c89
+                                  : StyleUtil.c255,
                               decorationThickness: 2,
                             ),
                           ),
@@ -111,6 +136,11 @@ class ListTileItem extends StatelessWidget {
                       ),
                     ),
                   ),
+                ),
+                CustomTrailingListItem(
+                  todo: todo,
+                  settingBlocState: settingBlocState,
+                  scheduledEventCallback: (event) => eventTodoCallback = event,
                 ),
               ],
             ),

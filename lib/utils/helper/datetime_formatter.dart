@@ -19,33 +19,42 @@ class DateTimeFormatter {
     }
   }
 
-  static dynamic dateTimeNeutralizer(dynamic dateTime) async {
-    if (dateTime is DateTime) {
-      return tz.TZDateTime.from(
-        dateTime,
-        await TimezoneHandler.getDeviceTimezone(),
-      );
-    } else if (dateTime is TZDateTime) {
-      return DateTime.fromMillisecondsSinceEpoch(
-        dateTime.millisecondsSinceEpoch,
-      );
-    }
+  static Future<DateTime> toTZDateTime(TZDateTime tzDateTime) async {
+    return DateTime.fromMillisecondsSinceEpoch(
+      tzDateTime.millisecondsSinceEpoch,
+    );
+  }
+
+  static Future<TZDateTime> toDateTime(DateTime dateTime) async {
+    return tz.TZDateTime.from(
+      dateTime,
+      await TimezoneHandler.getDeviceTimezone(),
+    );
   }
 
   static DateTime formatToDateTime({required String dateTimeStr}) {
     return _formatter.parse(dateTimeStr);
   }
 
-  static DateTime dateIsMinTimeAndNullChecker({required DateTime minTime, required String? dateTimeStr}) {
+  static DateTime dateIsMinTimeAndNullChecker(
+      {required DateTime minTime, required String? dateTimeStr}) {
     if (dateTimeStr == null || dateTimeStr.isEmpty) {
       return minTime;
     }
 
     DateTime parsedDateTime = formatToDateTime(dateTimeStr: dateTimeStr);
-    if (parsedDateTime.isBefore(minTime) || parsedDateTime.isAtSameMomentAs(minTime)) {
+    if (parsedDateTime.isBefore(minTime) ||
+        parsedDateTime.isAtSameMomentAs(minTime)) {
       return minTime;
     } else {
       return parsedDateTime;
     }
+  }
+
+  static String formatToSimpleString(
+      {required DateTime dateTime, bool withTime = false}) {
+    final f =
+        withTime ? DateFormat("EEEE, MM yyyy hh:mm") : DateFormat("dd/MM/yy");
+    return f.format(dateTime);
   }
 }
