@@ -20,10 +20,11 @@ Simple approach to understanding Bloc Provider and SQLite as Embedded Database
 - Flutter: v3.27.2 or above
 
 ## 🚀 Feature
-### Include:
 - 🗒️ Add, Change, Update, and Delete multiple To-Do's locally. 
 - 📅 Schedule the start time of the To-Do to be performed. 
 - ⌚ Utilize and interact with Built-in Calendar and Alarm Apps to schedule and provide precise time reminders.
+
+Operating System Target: **Android, iOS**
 
 ## 👀 Take a peek 
 ![](https://github.com/Khip01/todo-list-app/blob/main/readme_assets/todo-list-app-prev.gif) <br>
