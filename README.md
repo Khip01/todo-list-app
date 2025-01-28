@@ -14,13 +14,16 @@ Simple approach to understanding Bloc Provider and SQLite as Embedded Database
 ## 💻 My Development Environment 
 - OS | Windows 11
 - IDE | Android Studio - Hedgehog 2023.1.1 Patch 2 
-- Emu | Physical Device - Android 11
+- Emu | Physical Device - Android 14, Xiaomi Redmi Note 13
 
 ## 📋 Requirements
-- Flutter: v3.22.3 or above
+- Flutter: v3.27.2 or above
 
 ## 🚀 Feature
-Include Create, Read, Update, Delete a Todo List State Management using Flutter Bloc Provider
+### Include:
+- 🗒️ Add, Change, Update, and Delete multiple To-Do's locally. 
+- 📅 Schedule the start time of the To-Do to be performed. 
+- ⌚ Utilize and interact with Built-in Calendar and Alarm Apps to schedule and provide precise time reminders.
 
 ## 👀 Take a peek 
 ![](https://github.com/Khip01/todo-list-app/blob/main/readme_assets/todo-list-app-prev.gif) <br>
