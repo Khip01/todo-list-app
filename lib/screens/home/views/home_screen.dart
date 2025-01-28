@@ -369,7 +369,7 @@ class ContentBody extends StatelessWidget {
                             alignment: Alignment.centerRight,
                             child: Icon(
                               Icons.delete_outline,
-                              color: StyleUtil.c200,
+                              color: StyleUtil.c255,
                             ),
                           ),
                         );
@@ -493,15 +493,28 @@ class ContentBody extends StatelessWidget {
         return AlertDialog(
           backgroundColor: StyleUtil.c13,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
+            side: BorderSide(
+              color: StyleUtil.c89,
+              width: 0.3,
+            ),
+            borderRadius: BorderRadius.circular(6),
           ),
           title: Container(
             constraints: const BoxConstraints(
               maxHeight: 125,
             ),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: StyleUtil.c89,
+                  width: 0.3,
+                ),
+              ),
+            ),
+            padding: EdgeInsets.only(bottom: 8),
             child: SingleChildScrollView(
-              child: RichText(
-                text: TextSpan(
+              child: SelectableText.rich(
+                TextSpan(
                   children: [
                     if (todo.check)
                       TextSpan(
@@ -513,7 +526,7 @@ class ContentBody extends StatelessWidget {
                     TextSpan(
                       text: todo.title,
                       style: StyleUtil.textXLRegular.copyWith(
-                        color: StyleUtil.c200,
+                        color: todo.check ? StyleUtil.c200 : StyleUtil.c255,
                       ),
                     ),
                   ],
@@ -521,62 +534,67 @@ class ContentBody extends StatelessWidget {
               ),
             ),
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 250,
-                width: double.maxFinite,
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        todo.desc,
-                        style: StyleUtil.textBaseRegular.copyWith(
-                          color: StyleUtil.c200,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              eventDateStart != null && eventDateStart.isNotEmpty
-                  ? Container(
-                      constraints: const BoxConstraints(
-                        maxHeight: 125,
-                      ),
-                      width: double.maxFinite,
+          content: SelectionArea(
+            child: SizedBox(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 250,
+                    width: double.maxFinite,
+                    child: SingleChildScrollView(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SpacingWidget(vertical: 20),
                           Text(
-                            "Scheduled on ",
-                            style: StyleUtil.textBaseMedium.copyWith(
-                              color: StyleUtil.c255,
-                            ),
-                          ),
-                          const SpacingWidget(vertical: 5),
-                          Text(
-                            eventDateStart,
+                            todo.desc,
                             style: StyleUtil.textBaseRegular.copyWith(
                               color: StyleUtil.c200,
                             ),
                           ),
                         ],
                       ),
-                    )
-                  : const SizedBox(),
-            ],
+                    ),
+                  ),
+                  eventDateStart != null && eventDateStart.isNotEmpty
+                      ? Container(
+                    constraints: const BoxConstraints(
+                      maxHeight: 125,
+                    ),
+                    width: double.maxFinite,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SpacingWidget(vertical: 20),
+                        Text(
+                          "Scheduled on ",
+                          style: StyleUtil.textBaseMedium.copyWith(
+                            color: StyleUtil.c255,
+                          ),
+                        ),
+                        const SpacingWidget(vertical: 5),
+                        Text(
+                          eventDateStart,
+                          style: StyleUtil.textBaseRegular.copyWith(
+                            color: StyleUtil.c200,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                      : const SizedBox(),
+                ],
+              ),
+            ),
           ),
         );
       },
     );
   }
+
 }
 
 class CustomAnimatedSettingIcon extends StatefulWidget {

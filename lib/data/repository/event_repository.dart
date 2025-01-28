@@ -60,7 +60,7 @@ class EventRepository {
     try {
       location = await TimezoneHandler.getDeviceTimezone();
     } catch (e) {
-      throw Exception(e.toString());
+      rethrow;
     }
 
     // Convert Date Time to Timezone
@@ -94,6 +94,10 @@ class EventRepository {
     required String calendarId,
     required String? eventId,
   }) async {
+    if (eventId == null){
+      return true;
+    }
+
     final Result<bool> deleteResult =
     await deviceCalendarPlugin.deleteEvent(calendarId, eventId);
 

@@ -6,6 +6,7 @@ import 'package:todo_list_app/screens/home/blocs/setting/setting_bloc.dart';
 import 'package:todo_list_app/screens/home/blocs/todo/todo_bloc.dart';
 import 'package:todo_list_app/screens/home/blocs/todo_list/todo_list_bloc.dart';
 import 'package:todo_list_app/screens/home/views/home_screen.dart';
+import 'package:todo_list_app/utils/style_util.dart';
 import 'package:todo_list_app/widgets/default_transition_screen.dart';
 
 class MainApp extends StatelessWidget {
@@ -39,6 +40,13 @@ class MainApp extends StatelessWidget {
       child: MaterialApp.router(
         routerConfig: _router,
         debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          textSelectionTheme: TextSelectionThemeData(
+            cursorColor: Colors.green,
+            selectionColor: StyleUtil.c73,
+            selectionHandleColor: StyleUtil.c97,
+          ),
+        ),
       ),
     );
   }

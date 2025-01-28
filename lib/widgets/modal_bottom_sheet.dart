@@ -110,6 +110,22 @@ void showCustomModalBottomSheet({
                             check: todoBlocState.todo.check,
                             isUsingAlarm: todoBlocState.todo.isUsingAlarm,
                           );
+                          if (prop
+                              .todoScheduledTextController.text.isNotEmpty) {
+                            _onChangeFilledDateTimeField(
+                              todoBlocContext: todoBlocContext,
+                              eventUpdate: UpdateDateField(
+                                isFilledDateField: true,
+                              ),
+                            );
+                          } else {
+                            _onChangeFilledDateTimeField(
+                              todoBlocContext: todoBlocContext,
+                              eventUpdate: UpdateDateField(
+                                isFilledDateField: false,
+                              ),
+                            );
+                          }
                         }
 
                         return Padding(
@@ -256,8 +272,7 @@ void showCustomModalBottomSheet({
                                     );
                                   },
                                 ),
-                                if (Platform.isAndroid &&
-                                    !settingBlocState.isSettingMode)
+                                if (Platform.isAndroid)
                                   CustomSwitch(
                                     isVisible: todoBlocState.isFilledDate,
                                     value: todoBlocState.todo.isUsingAlarm,
@@ -275,6 +290,7 @@ void showCustomModalBottomSheet({
                                       desc: prop.todoDescTextController.text,
                                       check: previewNewTodo.check,
                                       isUsingAlarm: previewNewTodo.isUsingAlarm,
+                                      eventId: editedTodo?.eventId,
                                       // scheduledTime:
                                       //     prop.todoScheduledTextController.text,
                                     ),
@@ -366,13 +382,6 @@ void _validateSubmitedTodo({
   }
 
   if (settingBlocState.isSettingMode) {
-    // Update Todo -> SQFlite
-    await TodoRepository().updateTodo(todo: todo);
-    // Update State
-    if (!todoListBlocContext.mounted) return;
-    todoListBlocContext.read<TodoListBloc>().add(
-          UpdateTodoListEvent(todo: todo),
-        );
     // Update Schedule Notification
     if (scheduledTime != "" || scheduledTime.isNotEmpty) {
       try {
@@ -385,6 +394,15 @@ void _validateSubmitedTodo({
           todoDescTextController: todoDescTextController,
         );
         todo.eventId = updatedIdEvent;
+        // Is Using Alarm ?
+        if (todo.isUsingAlarm) {
+          EventRepository.setAlarm(
+            eventStartDate: DateTimeFormatter.formatToDateTime(
+              dateTimeStr: scheduledTime,
+            ),
+            message: todo.title,
+          );
+        }
       } catch (error) {
         if (!widgetContext.mounted) return;
         _showSnackbarMessage(widgetContext, error.toString(), isError: true);
@@ -393,9 +411,17 @@ void _validateSubmitedTodo({
           widgetContext: widgetContext,
           todoTitleTextController: todoTitleTextController,
           todoDescTextController: todoDescTextController,
+          isPopScreen: false
         );
       }
     }
+    // Update Todo -> SQFlite
+    await TodoRepository().updateTodo(todo: todo);
+    // Update State
+    if (!todoListBlocContext.mounted) return;
+    todoListBlocContext.read<TodoListBloc>().add(
+      UpdateTodoListEvent(todo: todo),
+    );
   } else {
     // ----------- Add Schedule Notification (if any)
     if (scheduledTime != "" || scheduledTime.isNotEmpty) {
@@ -419,15 +445,16 @@ void _validateSubmitedTodo({
           );
         }
       } catch (err) {
-        if (!widgetContext.mounted) return;
-        _showSnackbarMessage(widgetContext, err.toString(), isError: true);
-        _clearStateAndField(
-          todoBlocContext: todoBlocContext,
-          widgetContext: widgetContext,
-          todoTitleTextController: todoTitleTextController,
-          todoDescTextController: todoDescTextController,
-        );
-        return;
+        if (widgetContext.mounted) {
+          _showSnackbarMessage(widgetContext, err.toString(), isError: true);
+          _clearStateAndField(
+            todoBlocContext: todoBlocContext,
+            widgetContext: widgetContext,
+            todoTitleTextController: todoTitleTextController,
+            todoDescTextController: todoDescTextController,
+            isPopScreen: false,
+          );
+        }
       }
     }
     // ----------- Add Todo -> SQFlite
@@ -442,18 +469,20 @@ void _validateSubmitedTodo({
       listKey.currentState!.insertItem(0);
     }
   }
-  if (!widgetContext.mounted) return;
-  _showSnackbarMessage(
-    widgetContext,
-    "ToDo ${settingBlocState.isSettingMode ? "updated" : "added"} successfully!",
-    isError: false,
-  );
-  _clearStateAndField(
-    todoBlocContext: todoBlocContext,
-    widgetContext: widgetContext,
-    todoTitleTextController: todoTitleTextController,
-    todoDescTextController: todoDescTextController,
-  );
+  if (widgetContext.mounted) {
+    _showSnackbarMessage(
+      widgetContext,
+      "ToDo ${settingBlocState.isSettingMode ? "updated" : "added"} successfully!",
+      isError: false,
+    );
+    _clearStateAndField(
+      todoBlocContext: todoBlocContext,
+      widgetContext: widgetContext,
+      todoTitleTextController: todoTitleTextController,
+      todoDescTextController: todoDescTextController,
+      isPopScreen: true,
+    );
+  }
 }
 
 Future<String> _addOrUpdateScheduledToDoHandler({
@@ -492,6 +521,7 @@ void _clearStateAndField({
   required BuildContext widgetContext,
   required TextEditingController todoTitleTextController,
   required TextEditingController todoDescTextController,
+  required bool isPopScreen,
 }) {
   todoBlocContext.read<TodoBloc>().add(
         TodoValidation(
@@ -501,7 +531,7 @@ void _clearStateAndField({
           ),
         ),
       );
-  widgetContext.pop();
+  if (isPopScreen) widgetContext.pop();
   todoTitleTextController.clear();
   todoBlocContext.read<TodoBloc>().add(
         UpdateTitle(
