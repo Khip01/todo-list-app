@@ -32,7 +32,9 @@ Future<void> customDialogBuilder({
                 width: 0.3,
               ),
               borderRadius: BorderRadius.circular(6),
-            ) : null,
+            ) : RoundedRectangleBorder(
+              borderRadius: BorderRadius.zero,
+            ),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeInOutCirc,
