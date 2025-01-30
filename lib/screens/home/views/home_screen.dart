@@ -232,14 +232,10 @@ class ContentBody extends StatelessWidget {
           } else if (todoListBlocState is TodoListLoaded &&
               todoListBlocState.todoList.isEmpty) {
             return Center(
-              child: Container(
-                width: double.maxFinite,
-                padding: EdgeInsets.only(left: 40, right: 40, bottom: 64),
-                child: Text(
-                  "Empty",
-                  style: StyleUtil.textXLMedium.copyWith(
-                    color: StyleUtil.c245,
-                  ),
+              child: Text(
+                "Empty",
+                style: StyleUtil.textXLMedium.copyWith(
+                  color: StyleUtil.c245,
                 ),
               ),
             );
