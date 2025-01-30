@@ -16,7 +16,7 @@
     <!--    </queries>-->
 
     <application
-        android:label="todo_list_app"
+        android:label="ToDo List App"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
