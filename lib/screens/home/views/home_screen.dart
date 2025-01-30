@@ -189,6 +189,7 @@ class CustomAppBar extends StatelessWidget {
 
 class ContentBody extends StatelessWidget {
   final GlobalKey<AnimatedListState> listKey;
+  final DeviceCalendarPlugin _deviceCalendarPlugin = DeviceCalendarPlugin();
 
   ContentBody({
     super.key,
@@ -211,7 +212,7 @@ class ContentBody extends StatelessWidget {
       ),
       child: BlocBuilder<TodoListBloc, TodoListState>(
         builder: (todoListBlocContext, todoListBlocState) {
-          if (todoListBlocState is TodoListInitial) {
+          if (todoListBlocState is TodoListLoading) {
             // TodoListLoading
             return const Center(
               child: CircularProgressIndicator(),
@@ -229,8 +230,7 @@ class ContentBody extends StatelessWidget {
                 ),
               ),
             );
-          } else if (todoListBlocState is TodoListLoaded &&
-              todoListBlocState.todoList.isEmpty) {
+          } else if (todoListBlocState is TodoListInitial) {
             return Center(
               child: Text(
                 "Empty",
@@ -395,6 +395,12 @@ class ContentBody extends StatelessWidget {
     todoListContext.read<TodoListBloc>().add(
           DeleteTodoListEvent(todo: todo),
         );
+    todoListContext.read<TodoListBloc>().add(
+          LoadTodoList(
+            deviceCalendarPlugin: _deviceCalendarPlugin,
+            calendarName: Constants.CALENDAR_NAME,
+          ),
+        );
     // Animation Handler
     if (listKey.currentState != null) {
       _deleteAnimationListHandler(
@@ -479,116 +485,116 @@ class ContentBody extends StatelessWidget {
     );
   }
 
-  // OLD Dialog Builder
-  // Future<void> _dialogBuilder(
-  //     {required BuildContext context,
-  //     required Todo todo,
-  //     required String? eventDateStart}) {
-  //   return showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return AlertDialog(
-  //         backgroundColor: StyleUtil.c13,
-  //         shape: RoundedRectangleBorder(
-  //           side: BorderSide(
-  //             color: StyleUtil.c89,
-  //             width: 0.3,
-  //           ),
-  //           borderRadius: BorderRadius.circular(6),
-  //         ),
-  //         title: Container(
-  //           constraints: const BoxConstraints(
-  //             maxHeight: 125,
-  //           ),
-  //           decoration: BoxDecoration(
-  //             border: Border(
-  //               bottom: BorderSide(
-  //                 color: StyleUtil.c89,
-  //                 width: 0.3,
-  //               ),
-  //             ),
-  //           ),
-  //           padding: EdgeInsets.only(bottom: 8),
-  //           child: SingleChildScrollView(
-  //             child: SelectableText.rich(
-  //               TextSpan(
-  //                 children: [
-  //                   if (todo.check)
-  //                     TextSpan(
-  //                       text: "[COMPLETED] ",
-  //                       style: StyleUtil.textXLMedium.copyWith(
-  //                         color: StyleUtil.c255,
-  //                       ),
-  //                     ),
-  //                   TextSpan(
-  //                     text: todo.title,
-  //                     style: StyleUtil.textXLRegular.copyWith(
-  //                       color: todo.check ? StyleUtil.c200 : StyleUtil.c255,
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //         content: SelectionArea(
-  //           child: Column(
-  //             mainAxisSize: MainAxisSize.min,
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               SizedBox(
-  //                 height: 250,
-  //                 width: double.maxFinite,
-  //                 child: SingleChildScrollView(
-  //                   child: Column(
-  //                     mainAxisSize: MainAxisSize.min,
-  //                     crossAxisAlignment: CrossAxisAlignment.start,
-  //                     children: [
-  //                       Text(
-  //                         todo.desc,
-  //                         style: StyleUtil.textBaseRegular.copyWith(
-  //                           color: StyleUtil.c200,
-  //                         ),
-  //                       ),
-  //                     ],
-  //                   ),
-  //                 ),
-  //               ),
-  //               eventDateStart != null && eventDateStart.isNotEmpty
-  //                   ? Container(
-  //                       constraints: const BoxConstraints(
-  //                         maxHeight: 125,
-  //                       ),
-  //                       width: double.maxFinite,
-  //                       child: Column(
-  //                         crossAxisAlignment: CrossAxisAlignment.start,
-  //                         mainAxisSize: MainAxisSize.min,
-  //                         children: [
-  //                           const SpacingWidget(vertical: 20),
-  //                           Text(
-  //                             "Scheduled on ",
-  //                             style: StyleUtil.textBaseMedium.copyWith(
-  //                               color: StyleUtil.c255,
-  //                             ),
-  //                           ),
-  //                           const SpacingWidget(vertical: 5),
-  //                           Text(
-  //                             eventDateStart,
-  //                             style: StyleUtil.textBaseRegular.copyWith(
-  //                               color: StyleUtil.c200,
-  //                             ),
-  //                           ),
-  //                         ],
-  //                       ),
-  //                     )
-  //                   : const SizedBox(),
-  //             ],
-  //           ),
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
+// OLD Dialog Builder
+// Future<void> _dialogBuilder(
+//     {required BuildContext context,
+//     required Todo todo,
+//     required String? eventDateStart}) {
+//   return showDialog(
+//     context: context,
+//     builder: (context) {
+//       return AlertDialog(
+//         backgroundColor: StyleUtil.c13,
+//         shape: RoundedRectangleBorder(
+//           side: BorderSide(
+//             color: StyleUtil.c89,
+//             width: 0.3,
+//           ),
+//           borderRadius: BorderRadius.circular(6),
+//         ),
+//         title: Container(
+//           constraints: const BoxConstraints(
+//             maxHeight: 125,
+//           ),
+//           decoration: BoxDecoration(
+//             border: Border(
+//               bottom: BorderSide(
+//                 color: StyleUtil.c89,
+//                 width: 0.3,
+//               ),
+//             ),
+//           ),
+//           padding: EdgeInsets.only(bottom: 8),
+//           child: SingleChildScrollView(
+//             child: SelectableText.rich(
+//               TextSpan(
+//                 children: [
+//                   if (todo.check)
+//                     TextSpan(
+//                       text: "[COMPLETED] ",
+//                       style: StyleUtil.textXLMedium.copyWith(
+//                         color: StyleUtil.c255,
+//                       ),
+//                     ),
+//                   TextSpan(
+//                     text: todo.title,
+//                     style: StyleUtil.textXLRegular.copyWith(
+//                       color: todo.check ? StyleUtil.c200 : StyleUtil.c255,
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//           ),
+//         ),
+//         content: SelectionArea(
+//           child: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               SizedBox(
+//                 height: 250,
+//                 width: double.maxFinite,
+//                 child: SingleChildScrollView(
+//                   child: Column(
+//                     mainAxisSize: MainAxisSize.min,
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Text(
+//                         todo.desc,
+//                         style: StyleUtil.textBaseRegular.copyWith(
+//                           color: StyleUtil.c200,
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ),
+//               eventDateStart != null && eventDateStart.isNotEmpty
+//                   ? Container(
+//                       constraints: const BoxConstraints(
+//                         maxHeight: 125,
+//                       ),
+//                       width: double.maxFinite,
+//                       child: Column(
+//                         crossAxisAlignment: CrossAxisAlignment.start,
+//                         mainAxisSize: MainAxisSize.min,
+//                         children: [
+//                           const SpacingWidget(vertical: 20),
+//                           Text(
+//                             "Scheduled on ",
+//                             style: StyleUtil.textBaseMedium.copyWith(
+//                               color: StyleUtil.c255,
+//                             ),
+//                           ),
+//                           const SpacingWidget(vertical: 5),
+//                           Text(
+//                             eventDateStart,
+//                             style: StyleUtil.textBaseRegular.copyWith(
+//                               color: StyleUtil.c200,
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     )
+//                   : const SizedBox(),
+//             ],
+//           ),
+//         ),
+//       );
+//     },
+//   );
+// }
 }
 
 class CustomAnimatedSettingIcon extends StatefulWidget {
