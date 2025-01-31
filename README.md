@@ -27,6 +27,7 @@ Simple approach to understanding Bloc Provider and SQLite as Embedded Database
 Operating System Target: **Android, iOS**
 
 ## 👀 Take a peek 
+<img src="https://github.com/Khip01/todo-list-app/blob/main/readme_assets/todo-list-app-prev-v311.gif" width="250" />
 ![](https://github.com/Khip01/todo-list-app/blob/main/readme_assets/todo-list-app-prev-v311.gif) <br>
 
 ## 📱 Release App
