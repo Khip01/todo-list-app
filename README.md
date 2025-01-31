@@ -28,7 +28,6 @@ Operating System Target: **Android, iOS**
 
 ## 👀 Take a peek 
 <img src="https://github.com/Khip01/todo-list-app/blob/main/readme_assets/todo-list-app-prev-v311.gif" width="250" />
-![](https://github.com/Khip01/todo-list-app/blob/main/readme_assets/todo-list-app-prev-v311.gif) <br>
 
 ## 📱 Release App
 **Try and Install** this app on your device <br>by visiting the **[Releases page](https://github.com/Khip01/todo-list-app/releases)** of this repo! <br>
